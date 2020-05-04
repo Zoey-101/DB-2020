@@ -7,8 +7,9 @@ This file creates your application.
 
 from app import app, login_manager
 from flask import render_template, request, redirect, url_for, flash, session
-from flask_login import login_user, logout_user, current_user, login_required
-from app.forms import LoginForm, Registration
+from flask import Flask, escape, request
+# from flask_login import login_user, logout_user, current_user, login_required
+from app.forms import LoginForm, Registration, AddFriend, newGroup
 import mysql.connector
 
 
@@ -16,7 +17,7 @@ mydb = mysql.connector.connect(
     host="localhost",
     user="root",
     passwd="",
-    database="mybank2020"
+    database="mybook2020"
 )
 
 mycursor = mydb.cursor()
@@ -30,6 +31,11 @@ def home():
     """Render website's home page."""
     return render_template('home.html')
 
+@app.route('/2')
+def index2():
+    if 'username' in session:
+        return 'Logged in as %s' % escape(session['username'])
+    return 'You are not logged in'
 
 @app.route('/about/')
 def about():
@@ -63,7 +69,7 @@ def registerUser():
             mycursor.execute(sql, val)
             mydb.commit()
 
-            print(mycursor.rowcount, "record inserted.")
+
             print("1 record inserted, ID:", mycursor.lastrowid)
             flash('Successfully registered', 'success')
 
@@ -96,13 +102,14 @@ def login():
         mycursor.execute('SELECT * FROM user WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         user = mycursor.fetchone()
+        print(user)
         # If user exists in users table in out database
 
         if user:
             # Create session data, we can access this data in other routes
-            session['loggedin'] = True
+            session['logged_in'] = True
             session['id'] = user[0]
-            session['username'] = user[3]
+            session['username'] = request.form['username']
             # Redirect to home page
             flash('Logged in Succesfully', 'success')
         else:
@@ -114,37 +121,130 @@ def login():
 @app.route('/logout')
 def logout():
     # Remove session data, this will log the user out
-   session.pop('loggedin', None)
+   session.pop('logged_in', None)
    session.pop('id', None)
    session.pop('username', None)
    flash('Logged out Succesfully', 'success')
-#    print(session['loggedin'])
-   # Redirect to login page
+
+   # Redirect to home page
    return redirect(url_for('home'))
 
-# http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
-@app.route('/pythonlogin/profile')
+@app.route('/addfriend', methods=['GET', 'POST'])
+def addfriend():
+    # logs = LoginForm()
+    if 'username' in session:
+        form = AddFriend()  
+        mycursor = mydb.cursor()
+
+        # Check if "username" POST requests exist
+        if request.method == 'POST' and 'username' in request.form:
+            # Create variables for easy access
+            username = request.form['username']
+            type = request.form['type']
+
+            # Check if user exists using MySQL
+            # cursor = mysql.connection.cursor(mycursor.DictCursor)
+            mycursor.execute('SELECT * FROM user WHERE username = %s', (username,))
+            # Fetch one record and return result
+            friend = mycursor.fetchone()
+            print(friend)
+            if friend:
+                sql = "INSERT INTO friend_of (user_id, friend_id, type) VALUES (%s, %s, %s)"
+                val = (session['id'], friend[0], type)
+
+                mycursor.execute(sql, val)
+                mydb.commit()
+
+                print(mycursor.rowcount, "record inserted.")
+                print("1 record inserted, ID:", mycursor.lastrowid)
+                flash('Friend Added', 'success')
+            else:
+                # user does not exist or username/password incorrect
+                flash(u'User does not exist', 'error')
+
+        return render_template('friend.html', form = form)
+    else:
+        return render_template('login.html', form = LoginForm())
+
+
+@app.route('/createGroup', methods=['GET', 'POST'])
+def createGrp():
+    if 'username' in session:
+        form = newGroup()  
+        mycursor = mydb.cursor()
+
+        # Check if "username" POST requests exist
+        if request.method == 'POST' and form.validate_on_submit():
+            # Create variables for easy access
+            gname = request.form['grp_name']
+            purpose = request.form['purpose']
+
+            # Check if user exists using MySQL
+            mycursor.execute('SELECT * FROM grouped WHERE grp_name = %s', (gname,))
+            # Fetch one record and return result
+            gp = mycursor.fetchone()
+            print(gp)
+            if gp is None:
+                sql = "INSERT INTO grouped (grp_name, purpose) VALUES (%s, %s)"
+                val = (gname, purpose)
+
+                mycursor.execute(sql, val)
+                mydb.commit()
+
+                print(mycursor.rowcount, "record inserted.")
+                print("1 record inserted, ID:", mycursor.lastrowid)
+                flash('Group Created', 'success')
+            else:
+                # user does not exist or username/password incorrect
+                flash(u'Group Already Exists', 'error')
+
+        return render_template('createGrp.html', form = form)
+    else:
+        return render_template('login.html', form = LoginForm())
+
+
+
+
+@app.route('/myFriends')
+def myFriends():
+    # Check if user is loggedin
+    if 'username' in session:
+        # We need all the user info for the user so we can display it on the profile page
+        mycursor.execute('SELECT f_name, l_name from user WHERE user.user_id IN (SELECT friend_id FROM friend_of join user on user.user_id=friend_of.user_id WHERE user.user_id = %s)', (session['id'],))
+        users = mycursor.fetchall()
+        # select friend_id,type from friend_of join user on user.user_id=friend_of.user_id where user.user_id = 6; 
+        # +-----------+----------+
+        # | friend_id | type     |
+        # +-----------+----------+
+        # |         3 | Relative |
+        # |         5 | Work     |
+        # |         8 | Work     |
+        # |         9 | School   |
+        # +-----------+----------+
+        print(users)
+        for i in users:
+            print('First Name ',i[0])
+            print('Last Name: ',i[1])
+        
+        # Show the profile page with user info
+        return render_template('myfriends.html', users=users)
+        # return render_template('home.html')
+    # User is not loggedin redirect to login page
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/profile')
 def profile():
     # Check if user is loggedin
-    if 'loggedin' in session:
+    if 'username' in session:
         # We need all the user info for the user so we can display it on the profile page
-        mycursor.execute('SELECT * FROM users WHERE id = %s', (session['id'],))
+        mycursor.execute('SELECT * FROM user WHERE id = %s', (session['id'],))
         user = mycursor.fetchone()
         # Show the profile page with user info
         return render_template('profile.html', user=user)
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
-
-# http://localhost:5000/pythinlogin/home - this will be the home page, only accessible for loggedin users
-@app.route('/pythonlogin/home')
-def pyhome():
-    # Check if user is loggedin
-    if 'loggedin' in session:
-        # User is loggedin show them the home page
-        return render_template('home.html', username=session['username'])
-    # User is not loggedin redirect to login page
-    return redirect(url_for('login'))
 
 
 ###

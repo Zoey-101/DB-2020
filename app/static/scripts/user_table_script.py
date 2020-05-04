@@ -4,15 +4,15 @@ from faker import Faker
 
 def datagenerate(records, headers):
     fake = Faker()
-    with open("./csv files/user_data.csv", 'wt') as csvFile:
+    with open("./csv files/user_data_fake.csv", 'wt') as csvFile:
         writer = csv.DictWriter(csvFile, fieldnames=headers)
         writer.writeheader()
         for i in range(records):
             f_name = fake.first_name()
             l_name = fake.last_name()
             username = f_name
-            email = fake.email()
-            password = "mybank2020"
+            email = l_name + "@gmail.com"
+            password = "mybook2020"
 
             writer.writerow({
                 "User Id": i+1,
@@ -30,7 +30,7 @@ def datagenerate(records, headers):
 
 
 if __name__ == '__main__':
-    records = 500000
-    headers = ["User Id", "First Name", "Last Name", "Username", "Email", "Password"]
+    records = 5
+    headers = ["User Id", "First Name", "Last Name", "Username", "Password", "Email"]
     datagenerate(records, headers)
     print("User Table CSV generation complete!")

@@ -1,10 +1,9 @@
 from flask import Flask
 from flask_login import LoginManager
-# from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-app.secret_key = b'_5#y2L"oursecret\n\xec]/'
+app.secret_key = 'some_secret'
 
 # Flask-Login login manager
 login_manager = LoginManager()

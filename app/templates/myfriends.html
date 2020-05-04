@@ -1,0 +1,18 @@
+{% extends "base.html" %} {% block main %}
+<h1 class="page-header">Your Friends</h1>
+<p class="lead">
+  {% if users %}
+  {% for user in
+    users %}
+    <div class="col-4 mb-4">
+        <div class="grp_title py-2">
+          {{ user[0] }} {{ user[1] }} 
+        </div>
+    </div>
+    {% endfor %} {% endif %}
+    {% if not users  %}
+      <p>You have no friends.</p>
+    {% endif %}
+
+</p>
+{% endblock %}

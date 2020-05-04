@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, SelectField
 from wtforms.validators import InputRequired, Email, DataRequired, Length, EqualTo
 
 
@@ -20,3 +20,12 @@ class Registration(FlaskForm):
     confirmPassword = PasswordField('Repeat Password', [
         EqualTo('password', message='Passwords must match.')
     ])
+
+class AddFriend(FlaskForm):
+    username = StringField('Friend Username', validators=[InputRequired()])
+    type = SelectField('What is your personality type?', choices=[(0, 'Select an option'), (
+        'Relative', 'Relative'), ('School', 'School'), ('Work', 'Work')])
+
+class newGroup(FlaskForm):
+    grp_name = StringField('Group Name:', validators=[InputRequired()])
+    purpose = StringField('Purpose:', validators=[InputRequired()])

@@ -1,6 +1,6 @@
-drop database IF EXISTS mybank2020;
-create database mybank2020;
-use mybank2020;
+drop database IF EXISTS mybook2020;
+create database mybook2020;
+use mybook2020;
 
 drop table IF EXISTS user;
 drop table IF EXISTS friend_of;
@@ -21,14 +21,14 @@ create table user (
     f_name varchar(15) not null,
     l_name varchar(15) not null,
     username varchar(15) not null,
-    email varchar(35) not null,
-    password varchar(300) not null,
+    password varchar(20) not null,
+    email varchar(55) not null,    
     primary key(user_id)
 );
 
 
 create table user_profile (
-    prof_id int not null,
+    prof_id int auto_increment not null,
     createdProf_date date,
     primary key(prof_id), 
     foreign key (prof_id) references user(user_id) on update cascade on delete cascade
@@ -49,8 +49,8 @@ create table posts (
 
 create table grouped (
     grp_id int auto_increment not null,
-    grp_name varchar(20) not null,
-    purpose varchar(50) not null,
+    grp_name varchar(30) not null,
+    purpose varchar(30) not null,
     primary key(grp_id)
 );
 
@@ -58,7 +58,8 @@ create table grouped (
 create table friend_of (
     user_id int not null,
     friend_id int not null,
-    primary key(user_id),
+    type varchar(20) not null,
+    primary key(user_id, friend_id),
     foreign key(user_id) references user(user_id) on update cascade on delete cascade,
     foreign key(friend_id) references user(user_id) on update cascade on delete restrict
 );
@@ -96,4 +97,38 @@ create table UCG (
     foreign key (grp_id) references grouped(grp_id) on update cascade on delete cascade
 );
 
-LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS (user_id, f_name, l_name, username, email, password) SET password = PASSWORD(@Password);
+/*      DELIMITERS      */
+-- DATE TRIGGER
+Delimiter $$
+    CREATE TRIGGER Date_Trigger
+    AFTER insert ON User
+    FOR EACH ROW
+    BEGIN
+    INSERT into user_profile(prof_id, createdProf_date) values
+    (new.user_id, curtime());
+    END $$
+delimiter ;
+
+
+DELIMITER //
+ CREATE PROCEDURE GetFriends(IN user_id INT)
+ BEGIN
+ 	SELECT friend_id FROM friend_of WHERE user_id = user_id;
+ END //
+DELIMITER ;
+
+
+DELIMITER //
+ CREATE PROCEDURE GetGroupAmount(IN user_id INT)
+ BEGIN
+ SELECT count(group_id) FROM Grouped JOIN UCG ON group.group_id = UCG.group_id WHERE user_id = user_id;
+ END //
+DELIMITER ;
+
+
+
+/*      LOAD CSV FILES IN DATABASE      */
+LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data_fake.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS (user_id, f_name, l_name, username, password, email );
+
+LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/group_data_fake.csv' INTO TABLE grouped FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS (grp_id, grp_name, purpose);
+
