@@ -210,25 +210,14 @@ def myFriends():
     # Check if user is loggedin
     if 'username' in session:
         # We need all the user info for the user so we can display it on the profile page
-        mycursor.execute('SELECT f_name, l_name from user WHERE user.user_id IN (SELECT friend_id FROM friend_of join user on user.user_id=friend_of.user_id WHERE user.user_id = %s)', (session['id'],))
+        mycursor.execute('select type, f_name, l_name from user join friend_of on user.user_id=friend_of.friend_id where friend_of.user_id = %s', (session['id'],))
+
+        # Fetches all friends of the user who is logged in
         users = mycursor.fetchall()
-        # select friend_id,type from friend_of join user on user.user_id=friend_of.user_id where user.user_id = 6; 
-        # +-----------+----------+
-        # | friend_id | type     |
-        # +-----------+----------+
-        # |         3 | Relative |
-        # |         5 | Work     |
-        # |         8 | Work     |
-        # |         9 | School   |
-        # +-----------+----------+
-        print(users)
-        for i in users:
-            print('First Name ',i[0])
-            print('Last Name: ',i[1])
-        
-        # Show the profile page with user info
+
+        # Show the friends page with user info
         return render_template('myfriends.html', users=users)
-        # return render_template('home.html')
+
     # User is not loggedin redirect to login page
     else:
         return redirect(url_for('login'))
