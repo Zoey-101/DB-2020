@@ -1,0 +1,101 @@
+{% extends "sidebar.html" %} {% block div %}
+<div class="mycard relative pb-0">
+  <form
+    action="{{ url_for('dashboard') }}"
+    method="post"
+    enctype="multipart/form-data"
+  >
+    {{ form.csrf_token }} {{ form.description(class='form-control post',
+    placeholder = "Create new post..") }}
+
+    <div class="sleeve">
+      <span class="sleeve-title">Browse ...</span>
+      {{ form.photo(class='browse-hidden')}}
+    </div>
+
+    <button type="submit" name="submit" class="post-btn">Post</button>
+  </form>
+</div>
+
+<div class="mycard mt-5 mb-5">
+  <p class="subhead">Groups</p>
+  <div class="row">
+    <!-- LAST GROUP USER JOINED GOES HERE ON DASHBOARD
+      <div class = "col-4 grp-tile mr-2">
+      </div> -->
+
+    <div class="col-3 grp-tile ml-2">
+      <div class="col-3 grid-spacing">
+        <a href="#">
+          <div class="tile">
+            <div class="grp_title py-3">
+              {{ group }}
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="col-3 grp-tile">
+      <a href="{{ url_for('createGrp') }}">
+        <img
+          src="../static/icons/plusSign.png"
+          width="50"
+          height="50"
+          class="grow"
+        />
+      </a>
+    </div>
+
+    <div class="col-3 grp-tile">
+      <a href="{{ url_for('myGroups') }}">
+        <img
+          src="../static/icons/mark.png"
+          width="50"
+          height="50"
+          class="grow"
+        />
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="alert alert-info">
+  Currently no posts on your feed
+</div>
+
+<!-- PHOTO POST LAYOUT
+<div class = "mycard mb-5">
+    <div class = "thumbnail-pic">
+        <img> 
+    </div>
+    <div class = "post-title">
+        <span class = "post-name ml-2">Friend's Name</span> <br>  <span class = "post-time ml-2">posted ---- </span>
+    </div>
+
+    <hr>
+
+    <div class = "centre">
+        <img src="../static/icons/buildings.png" width = "320" height = "300" class = "mt-2"/>
+    </div>
+     
+</div> -->
+
+<!-- REGULAR TEXT POST LAYOUT
+<div class = "mycard mb-5">
+    <div class = "thumbnail-pic">
+        <img> 
+    </div>
+    <div class = "post-title">
+        <span class = "post-name ml-2">Harrison Ford</span> <br>  <span class = "post-time ml-2">posted ---- </span>
+    </div>
+
+    <hr>
+
+    <div class = "post-text">
+        <p> I had the best time at skl today</p>
+    </div>
+     
+</div> -->
+
+{% endblock %}

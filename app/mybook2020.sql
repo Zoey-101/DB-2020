@@ -4,14 +4,15 @@ use mybook2020;
 
 drop table IF EXISTS user;
 drop table IF EXISTS friend_of;
-drop table IF EXISTS creates_profile;
+-- drop table IF EXISTS creates_profile;
+drop table IF EXISTS join_group;
 drop table IF EXISTS user_profile;
 drop table IF EXISTS add_photo;
 drop table IF EXISTS photo;
 drop table IF EXISTS create_post;
 drop table IF EXISTS cv_post;
 drop table IF EXISTS posts;
-drop table IF EXISTS content_editior;
+-- drop table IF EXISTS content_editior;
 drop table IF EXISTS UCG;
 drop table IF EXISTS grouped;
 
@@ -34,6 +35,7 @@ create table user_profile (
     foreign key (prof_id) references user(user_id) on update cascade on delete cascade
 );
 
+
 create table photo (
     photo_id int auto_increment not null,
     photo_name varchar(50) not null,
@@ -52,6 +54,14 @@ create table grouped (
     grp_name varchar(30) not null,
     purpose varchar(30) not null,
     primary key(grp_id)
+);
+
+create table join_group (
+    grp_id int auto_increment not null,
+    user_id int not null,
+    primary key(grp_id, user_id),
+    foreign key (grp_id) references grouped(grp_id) on update cascade on delete cascade,
+    foreign key (user_id) references user(user_id) on update cascade on delete cascade
 );
 
 /* derived from relationships */

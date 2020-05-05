@@ -1,0 +1,72 @@
+{% extends "sidebar.html" %} {% block div %}
+
+<div class="page-header">
+  Your Friends
+</div>
+
+<div class="row ml-1 mt-5">
+  <!-- RELATIVES CARD -->
+  <div class="col-4 mycard mr-2 scroll">
+    <div class="friend-header">
+      Relatives
+    </div>
+
+    <hr />
+    {% for user in users %} {% if user[0] == "Relative"%}
+    <div class="list-friends">
+      <div class="mb-3 relative friends">
+        <div class="thumbnail-pic">
+          <img />
+          <span class="post-name tiny">{{ user[1] }} {{ user[2] }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="break"></div>
+    {% endif %}{% endfor %}
+  </div>
+
+  <!-- SCHOOL CARD -->
+  <div class="col-4 mycard mr-2 scroll">
+    <div class="friend-header">
+      School
+    </div>
+
+    <hr />
+
+    {% for user in users %} {% if user[0] == "School"%}
+    <div class="list-friends">
+      <div class="mb-3 relative friends">
+        <div class="thumbnail-pic">
+          <img />
+          <span class="post-name tiny">{{ user[1] }} {{ user[2] }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="break"></div>
+    {% endif %}{% endfor %}
+  </div>
+
+  <!-- WORK CARD -->
+
+  <div class="col-4 mycard mr-2 scroll">
+    <div class="friend-header">
+      Work
+    </div>
+
+    <hr />
+
+    {% for user in users %} {% if user[0] == "Work" %}
+    <div class="list-friends">
+      <div class="mb-3 relative friends">
+        <div class="thumbnail-pic">
+          <img />
+          <span class="post-name tiny">{{ user[1] }} {{ user[2] }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="break"></div>
+    {% endif %}{% endfor %}
+  </div>
+</div>
+
+{% endblock %}

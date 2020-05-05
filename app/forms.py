@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField
+from wtforms import StringField, PasswordField, SelectField, TextAreaField, SubmitField
 from wtforms.validators import InputRequired, Email, DataRequired, Length, EqualTo
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 
 class LoginForm(FlaskForm):
@@ -29,3 +30,21 @@ class AddFriend(FlaskForm):
 class newGroup(FlaskForm):
     grp_name = StringField('Group Name:', validators=[InputRequired()])
     purpose = StringField('Purpose:', validators=[InputRequired()])
+    ce = StringField('Add Content Editor by Username:', validators=[InputRequired()])
+
+class joinGrp(FlaskForm):
+    grp_name = StringField('Group Name:', validators=[InputRequired()])
+
+class createPost(FlaskForm):
+    photo = FileField(validators=[FileRequired()])
+    grp_name = StringField('Group Name:', validators=[InputRequired()])
+
+class NewPost(FlaskForm):
+    description = TextAreaField('Description', validators=[InputRequired()])
+    photo = FileField('Photo', validators=[FileAllowed(['jpg', 'png', 'Images only!'])])
+
+class Search(FlaskForm):
+    searchTerm = StringField('searchTerm', validators=[InputRequired()])
+
+class ProPicUpload(FlaskForm):
+    propic = FileField(validators=[FileRequired(),FileAllowed(['jpg', 'png', 'Images only!'])])

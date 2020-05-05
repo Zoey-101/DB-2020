@@ -1,0 +1,22 @@
+{% extends "sidebar.html" %} {% block div %}
+
+<div class="mycard mt-5 mb-5">
+  <p class="subhead">Groups</p>
+  <div class="row">
+    {% for group in groups %}
+    <div class="col-3 grp-tile ml-2">
+      <div class="col-3 grid-spacing">
+        <a href="#">
+          <div class="tile">
+            <div class="grp_title py-3">
+              {{ group[0] }}
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

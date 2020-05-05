@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block main %}
+{% extends "sidebar.html" %} {% block div %}
 <h1 class="page-header">Your Friends</h1>
 <p class="lead">
   {% if users %}
@@ -13,6 +13,5 @@
     {% if not users  %}
       <p>You have no friends.</p>
     {% endif %}
-
 </p>
 {% endblock %}

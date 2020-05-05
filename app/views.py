@@ -6,10 +6,11 @@ This file creates your application.
 """
 
 from app import app, login_manager
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask import Flask, escape, request
 # from flask_login import login_user, logout_user, current_user, login_required
-from app.forms import LoginForm, Registration, AddFriend, newGroup
+from app.forms import LoginForm, Registration, AddFriend, newGroup, joinGrp, createPost, NewPost, Search, ProPicUpload
+from werkzeug.utils import secure_filename
 import mysql.connector
 
 
@@ -29,7 +30,8 @@ mycursor = mydb.cursor()
 @app.route('/')
 def home():
     """Render website's home page."""
-    return render_template('home.html')
+    srchForm = Search()
+    return render_template('home.html', srchForm=srchForm)
 
 @app.route('/2')
 def index2():
@@ -40,7 +42,8 @@ def index2():
 @app.route('/about/')
 def about():
     """Render the website's about page."""
-    return render_template('about.html')
+    srchForm = Search()
+    return render_template('about.html', srchForm=srchForm)
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -88,6 +91,7 @@ def load_user(user_id):
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
+    srchForm = Search()
     form = LoginForm()
     mycursor = mydb.cursor()
 
@@ -98,7 +102,6 @@ def login():
         password = request.form['password']
 
         # Check if user exists using MySQL
-        # cursor = mysql.connection.cursor(mycursor.DictCursor)
         mycursor.execute('SELECT * FROM user WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         user = mycursor.fetchone()
@@ -116,7 +119,7 @@ def login():
             # user does not exist or username/password incorrect
             flash(u'Invalid Credentials', 'error')
 
-    return render_template("login.html", form=form)
+    return render_template("login.html", form=form, srchForm=srchForm)
 
 @app.route('/logout')
 def logout():
@@ -143,7 +146,6 @@ def addfriend():
             type = request.form['type']
 
             # Check if user exists using MySQL
-            # cursor = mysql.connection.cursor(mycursor.DictCursor)
             mycursor.execute('SELECT * FROM user WHERE username = %s', (username,))
             # Fetch one record and return result
             friend = mycursor.fetchone()
@@ -162,7 +164,7 @@ def addfriend():
                 # user does not exist or username/password incorrect
                 flash(u'User does not exist', 'error')
 
-        return render_template('friend.html', form = form)
+        return render_template('addfriend.html', form = form)
     else:
         return render_template('login.html', form = LoginForm())
 
@@ -171,13 +173,14 @@ def addfriend():
 def createGrp():
     if 'username' in session:
         form = newGroup()  
-        mycursor = mydb.cursor()
+        mycursor1 = mydb.cursor()
 
         # Check if "username" POST requests exist
         if request.method == 'POST' and form.validate_on_submit():
             # Create variables for easy access
             gname = request.form['grp_name']
             purpose = request.form['purpose']
+            ce = request.form['ce']
 
             # Check if user exists using MySQL
             mycursor.execute('SELECT * FROM grouped WHERE grp_name = %s', (gname,))
@@ -185,25 +188,91 @@ def createGrp():
             gp = mycursor.fetchone()
             print(gp)
             if gp is None:
-                sql = "INSERT INTO grouped (grp_name, purpose) VALUES (%s, %s)"
-                val = (gname, purpose)
+                mycursor1.execute('SELECT * FROM user WHERE username = %s', (ce,))
+                # Fetch one record and return result
+                content_editor = mycursor1.fetchone()
+                print(content_editor)
+                if content_editor:
+                    sql = "INSERT INTO grouped (grp_name, purpose) VALUES (%s, %s)"
+                    val = (gname, purpose)
 
-                mycursor.execute(sql, val)
-                mydb.commit()
+                    mycursor.execute(sql, val)
+                    mydb.commit()
 
-                print(mycursor.rowcount, "record inserted.")
-                print("1 record inserted, ID:", mycursor.lastrowid)
-                flash('Group Created', 'success')
+                    print(mycursor.rowcount, "record inserted.")
+                    print("1 record inserted, ID:", mycursor.lastrowid)
+
+                    sql = "INSERT INTO ucg (user_id, ce_id, grp_id) VALUES (%s, %s, %s)"
+                    val = (session['id'], content_editor[0], mycursor.lastrowid)
+
+                    mycursor1.execute(sql, val)
+                    mydb.commit()
+                    flash('Group Created', 'success')
+                else:
+                    flash('Username does not exist', 'error')
             else:
                 # user does not exist or username/password incorrect
                 flash(u'Group Already Exists', 'error')
 
-        return render_template('createGrp.html', form = form)
+        return render_template('createGrp.html', form = form, srchForm = Search())
     else:
         return render_template('login.html', form = LoginForm())
 
+@app.route('/joinGroup', methods=['GET', 'POST'])
+def joinGroup():
+    if 'username' in session:
+        form = joinGrp()  
+        mycursor1 = mydb.cursor()
 
+        # Check if "username" POST requests exist
+        if request.method == 'POST' and form.validate_on_submit():
+            # Create variables for easy access
+            gp = request.form['grp_name']
 
+            # Check if group exists using MySQL
+            mycursor.execute('SELECT * FROM grouped WHERE grp_name = %s', (gp,))
+            # Fetch one record and return result
+
+            existing_gp = mycursor.fetchone()
+            print(existing_gp)
+
+            if existing_gp:
+                mycursor1.execute('SELECT * FROM join_group WHERE grp_id = %s and user_id = %s', (existing_gp[0], session['id']))  
+
+                member_of_grp = mycursor1.fetchone()
+                if not member_of_grp:
+                    sql = "INSERT INTO join_group (grp_id, user_id) VALUES (%s, %s)"
+                    val = (existing_gp[0], session['id'])
+
+                    mycursor.execute(sql, val)
+                    mydb.commit()
+
+                    print(mycursor.rowcount, "record inserted.")
+                    print("1 record inserted, ID:", mycursor.lastrowid)
+                    flash('You have been added', 'success')
+                else:
+                    flash('You are already a member of this group')    
+            else:
+                # Group does not exist
+                flash(u'Group does not exist', 'error')
+
+        return render_template('joingrp.html', form = form)
+    else:
+        return render_template('login.html', form = LoginForm())
+
+@app.route('/newPost')
+def newPost():
+    form = createPost()
+    if form.validate_on_submit():
+        f = form.photo.data
+        filename = secure_filename(f.filename)
+        f.save(os.path.join(
+            app.instance_path, 'photos', filename
+        ))
+        flash('Post has been added', 'success')
+        return redirect(url_for('home'))
+    return render_template('upload.html', form=form)
+    
 
 @app.route('/myFriends')
 def myFriends():
@@ -216,25 +285,121 @@ def myFriends():
         users = mycursor.fetchall()
 
         # Show the friends page with user info
-        return render_template('myfriends.html', users=users)
+        return render_template('myfriends.html', users=users, srchForm = Search())
 
     # User is not loggedin redirect to login page
     else:
         return redirect(url_for('login'))
 
-@app.route('/profile')
-def profile():
-    # Check if user is loggedin
+# @app.route('/profile')
+# def profile():
+#     # Check if user is loggedin
+#     if 'username' in session:
+#         # We need all the user info for the user so we can display it on the profile page
+#         mycursor.execute('SELECT * FROM user WHERE id = %s', (session['id'],))
+#         user = mycursor.fetchone()
+#         # Show the profile page with user info
+#         return render_template('profile.html', user=user)
+#     # User is not loggedin redirect to login page
+#     return redirect(url_for('login'))
+
+@app.route('/myGroups', methods=['POST', 'GET'])
+def myGroups():
+    if 'username' in session:
+        mycursor.execute('select grp_name from grouped join ucg on grouped.grp_id=ucg.grp_id where ucg.user_id = %s', (session['id'],))
+        groups = mycursor.fetchall()
+        print(groups)
+
+        return render_template('myGroups.html', srchForm = Search(), groups = groups)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/dashboard', methods=['POST', 'GET'])
+def dashboard():
+    srchForm = Search()
+    form = NewPost()
+
+    mycursor.execute('select grp_name from grouped join ucg on grouped.grp_id=ucg.grp_id where ucg.user_id = %s', (session['id'],))
+    groups = mycursor.fetchall()
+    print(groups)
+    print(groups[0][0])
+
+    if request.method == 'POST' and srchForm.validate_on_submit():
+        term = srchForm.searchTerm.data 
+        results(term)
+           
+    if request.method == 'POST' and form.validate_on_submit():
+        # Get file data and save to your uploads folder
+        if form.photo.data: #for both text and photo
+            photo = form.photo.data 
+            description = form.description.data
+
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return jsonify(message = [{"message" : "File Upload Successful", "filename": filename, "description": description}])
+        
+        else: #only posts text
+            description = form.description.data 
+            return jsonify(message = [{"message" : "Post Successful", "description": description}])
+           
+    return render_template('dashboard.html', form=form, srchForm = srchForm, group = groups[0][0])
+
+
+@app.route('/friends/')
+def friends():
+    """Render the website's friends page."""
     if 'username' in session:
         # We need all the user info for the user so we can display it on the profile page
-        mycursor.execute('SELECT * FROM user WHERE id = %s', (session['id'],))
-        user = mycursor.fetchone()
-        # Show the profile page with user info
-        return render_template('profile.html', user=user)
+        mycursor.execute('select type, f_name, l_name from user join friend_of on user.user_id=friend_of.friend_id where friend_of.user_id = %s', (session['id'],))
+
+        # Fetches all friends of the user who is logged in
+        users = mycursor.fetchall()
+        print(users)
+
+        # Show the friends page with user info
+        # return render_template('myfriends.html', users=users, srchForm = Search())
+        return render_template('friends.html', srchForm = Search(), users=users)
+
     # User is not loggedin redirect to login page
-    return redirect(url_for('login'))
+    else:
+        return redirect(url_for('login'))
+
+    
 
 
+@app.route('/results/')
+def results():
+    srchForm = Search()
+    return render_template('results.html', srchForm = srchForm)
+
+
+@app.route('/profile/')
+def profile():
+    """Render website's home page."""
+    srchForm = Search()
+    form = NewPost()
+    uploadForm = ProPicUpload()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        # Get file data and save to your uploads folder
+        if form.photo.data: #for both text and photo
+            photo = form.photo.data 
+            description = form.description.data
+
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return jsonify(message = [{"message" : "File Upload Successful", "filename": filename, "description": description}])
+        
+        else: #only posts text
+            description = form.description.data 
+            return jsonify(message = [{"message" : "Post Successful", "description": description}])
+
+    if request.method == 'POST' and uploadForm.validate_on_submit(): 
+        propic = uploadForm.propic.data 
+        filename = secure_filename(propic.filename)
+        propic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    return render_template('profile.html', srchForm=srchForm, uploadForm = uploadForm, form = form)
 
 ###
 # The functions below should be applicable to all Flask apps.
@@ -273,7 +438,8 @@ def add_header(response):
 @app.errorhandler(404)
 def page_not_found(error):
     """Custom 404 page."""
-    return render_template('404.html'), 404
+    srchForm = Search()
+    return render_template('404.html', srchForm=srchForm), 404
 
 
 if __name__ == '__main__':

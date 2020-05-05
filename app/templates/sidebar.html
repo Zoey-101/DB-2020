@@ -1,0 +1,43 @@
+{% extends "base.html" %} {% block main %}
+<div class="row">
+  <div class="col-4 sbar">
+    <nav id="sidebar">
+      <div class="sidebar-link">
+        <a href="{{ url_for('dashboard') }}" class="nav-link dark cover">
+          <p class="links smlgrow">
+            <img src="../static/icons/buildings.png" class="side-icon mr-2" />
+            Dashboard
+          </p>
+        </a>
+
+        <a href="{{ url_for('friends') }}" class="nav-link dark">
+          <p class="links reg-link smlgrow">
+            <img src="../static/icons/user.png" class="side-icon mr-2" />
+            Your Friends
+          </p>
+        </a>
+
+        <a href="{{ url_for('myGroups') }}" class="nav-link smlgrow">
+          <p class="links reg-link">
+            <img src="../static/icons/link.png" class="side-icon mr-2" />
+            Your Groups
+          </p>
+        </a>
+
+        <a class="nav-link">
+          <p class="links reg-link smlgrow">
+            <img src="../static/icons/mail.png" class="side-icon mr-2" />
+            Messages
+          </p>
+        </a>
+      </div>
+    </nav>
+  </div>
+  <div class="col-8">
+    <div class="content">
+      {% block div %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
