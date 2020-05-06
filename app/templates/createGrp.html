@@ -1,21 +1,66 @@
-{% extends "base.html" %} {% block main %}
-<div class="login-form center-block">
-  <h2>Create a Group</h2>
-  {% include 'flash_messages.html' %}
-  <form action="{{ url_for('createGrp') }}" method="post">
-    {{ form.csrf_token }}
-    <div class="form-group">
-      {{ form.grp_name.label }} {{ form.grp_name(class='form-control') }}
-    </div>
-    <div class="form-group">
-      {{ form.purpose.label }} {{ form.purpose(class='form-control') }}
-    </div>
-    <div class="form-group">
-      {{ form.ce.label }} {{ form.ce(class='form-control', placeholder="Eg. Harry_Styles01") }}
-    </div>
-    <button type="submit" name="submit" class="btn btn-primary btn-block">
-      Create Group
-    </button>
-  </form>
+{% extends "sidebar.html" %} {% block div %}
+
+<div class = "page-header"> 
+    Your Groups
 </div>
+
+<div class = "mycard mt-5 mb-5">
+
+    <div class = "myrow">
+
+        <div class = "col-4 grp-tile mr-2"> Group Name </div>
+
+
+        <div class = "col-4 grp-tile mr-2" data-toggle="modal" data-target="#CEModal">
+            <img src="../static/icons/plusSign.png" width = "50" height = "50" class = "grow"/>
+        </div>
+
+    
+    </div>
+</div>
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="CEModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+
+          <h5 class="modal-title format" id="exampleModalLabel">Content Editors</h5>
+
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+
+        </div>
+
+        <div class="modal-body pl-3 pl-3">
+
+          
+        <form action="{{ url_for('createGrp') }}" method="post" enctype="multipart/form-data" class = "mr-5 ml-5">
+            {{ form.csrf_token }}
+            {{ form.grp_name.label }}
+            {{ form.grp_name(class='form-control post mb-4') }}
+
+
+            {{ form.purpose.label }}
+            {{ form.purpose(class='form-control post mb-4') }}
+
+            <hr>
+            {{ form.CEusername(class='form-control post', placeholder = "Add Content Editor by Username") }}
+               
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" name="submit" class="btn btn-primary">Save</button>
+        </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+
+
 {% endblock %}

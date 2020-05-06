@@ -3,9 +3,11 @@
 <div class="mycard mt-5 mb-5">
   <p class="subhead">Groups</p>
   <div class="row">
-    {% for group in groups %}
-    <div class="col-3 grp-tile ml-2">
-      <div class="col-3 grid-spacing">
+    {% if not groups %}
+    <p>You are not a member of any groups.</p>
+    {% endif %} {% for group in groups %}
+    <div class="col-4 grp-tile ml-2">
+      <div class="grid-spacing">
         <a href="#">
           <div class="tile">
             <div class="grp_title py-3">

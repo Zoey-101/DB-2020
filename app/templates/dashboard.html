@@ -23,20 +23,21 @@
     <!-- LAST GROUP USER JOINED GOES HERE ON DASHBOARD
       <div class = "col-4 grp-tile mr-2">
       </div> -->
-
-    <div class="col-3 grp-tile ml-2">
-      <div class="col-3 grid-spacing">
+    {% if group %}
+    <div class="col-4 grp-tile ml-2">
+      <div class="grid-spacing">
         <a href="#">
           <div class="tile">
             <div class="grp_title py-3">
-              {{ group }}
+              {{ group[0][0] }}
             </div>
           </div>
         </a>
       </div>
     </div>
+    {% endif %}
 
-    <div class="col-3 grp-tile">
+    <div class="col-4 grp-tile mx-2">
       <a href="{{ url_for('createGrp') }}">
         <img
           src="../static/icons/plusSign.png"
@@ -47,7 +48,7 @@
       </a>
     </div>
 
-    <div class="col-3 grp-tile">
+    <div class="col-4 grp-tile">
       <a href="{{ url_for('myGroups') }}">
         <img
           src="../static/icons/mark.png"

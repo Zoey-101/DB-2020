@@ -1,39 +1,3 @@
-/* body {
-  padding-top: 5rem;
-  font-family: "Montserrat", "Open Sans";
-}
-
-/************************   Header      ******************************/
-/*
-nav.navbar.navbar-expand-lg.fixed-top {
-  background: #b3afc8;
-}
-
-header a {
-  color: #271e53;
-}
-
-a.navbar-brand.nh:hover {
-  color: #271e53;
-}
-
-a.nav-link:hover {
-  color: white;
-}
-
-.navbar-expand-lg .navbar-nav a.nav-link {
-  padding-left: 2.5rem;
-}
-
-header a.navbar-brand,
-header img.d-inline-block.align-top.mt-5 {
-  display: inline-block;
-}
-
-img.d-inline-block.align-top {
-  width: 32px;
-} */
-
 body {
   font-family: "Roboto", sans-serif;
   background-color: #f5f5f5;
@@ -70,7 +34,7 @@ a.navbar-brand.nh {
 }
 
 a.nav-link {
-  font-size: 15px;
+  font-size: 16px;
   color: #6369ff;
 }
 
@@ -91,16 +55,9 @@ img.d-inline-block.align-top {
   width: 32px;
 }
 
-/* .circle {
+.circle {
   border-radius: 50%;
   background-color: #ececec;
-} */
-
-img.d-inline-block.align-top.mr-2.circle {
-  border-radius: 50%;
-  background-color: #ececec;
-  width: 40px;
-  height: 40px;
 }
 
 a.nav-link.dark {
@@ -123,6 +80,64 @@ a.nav-link.dark {
   padding: 0.375rem 2rem;
   margin-left: 21rem;
   width: 80%;
+}
+
+/************* LOGIN *****************/
+.form-head {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: rgb(79, 147, 250);
+  margin-bottom: 3rem;
+}
+
+.btn.btn-purple.btn-block.w-sml {
+  width: 20%;
+}
+
+.w-med {
+  width: 92%;
+}
+
+.w-lrg {
+  width: 100%;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.login-card {
+  background-color: #fff;
+  padding: 2rem 15.5rem;
+  border-radius: 6px;
+  border: 1px solid #f4f4f4;
+}
+
+.lrgLogo {
+  font-size: 5rem;
+  color: rgb(79, 147, 250);
+  margin-top: 5rem;
+}
+
+.btn-purple {
+  background-color: #2b68c2;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.btn-purple:hover {
+  background-color: rgb(36, 88, 167);
+}
+
+/************* REGISTER **************/
+
+.reg-card {
+  background-color: #fff;
+  padding: 2rem 9rem;
+  border-radius: 6px;
+  border: 1px solid #f4f4f4;
 }
 
 /************* SIDEBAR ***************/
@@ -224,6 +239,8 @@ a.nav-link.dark {
   background-color: #f2f2ff;
   border-radius: 6px;
   text-align: center;
+  color: #2b68c2;
+  font-size: 18px;
 }
 
 .subhead {
@@ -325,7 +342,7 @@ a.nav-link.dark {
   border-radius: 6px;
   /* margin-top: 0.5rem; */
   /* float: right; */
-  margin-left: 44%;
+  /* margin-left: 44%; */
 }
 
 .post-btn:hover {
@@ -484,6 +501,36 @@ a.nav-link.dark {
   text-align: center;
 }
 
+/******* GROUP PROFILE *********/
+.grpbanner {
+  background: linear-gradient(82.47deg, #a0a4ff -12.74%, #187ca7 311.36%);
+  border: 1px solid #f4f4f4;
+  box-sizing: border-box;
+  border-radius: 6px;
+  margin-left: 15rem;
+  margin-right: 15rem;
+  /* width: 80%;
+  height: 80%; */
+}
+
+.CE-btn {
+  background-color: #fff;
+  border-left: 2px solid #6369ff;
+  border-right: 2px solid #6369ff;
+  border-top: none;
+  border-bottom: none;
+  color: #6369ff;
+  padding: 0.1rem 1.2rem;
+  /* margin-top: 0.5rem; */
+  /* float: right; */
+  /* margin-left: 44%; */
+}
+
+.format {
+  color: #6369ff;
+  font-size: 18px;
+}
+
 /* LANAI ADDED  */
 
 .friends.mb-3.relative {
@@ -492,5 +539,6 @@ a.nav-link.dark {
 }
 
 .grp-tile {
-  margin-right: 8%;
+  margin-bottom: 2%;
+  max-width: 32.3333%;
 }

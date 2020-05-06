@@ -47,7 +47,7 @@ def about():
 
 
 @app.route('/register', methods=["GET", "POST"])
-def registerUser():
+def register():
     """Render website's Registration Form."""
     form = Registration()
     mycursor = mydb.cursor()
@@ -76,11 +76,11 @@ def registerUser():
             print("1 record inserted, ID:", mycursor.lastrowid)
             flash('Successfully registered', 'success')
 
-            return redirect(url_for("home"))
+            return redirect(url_for("login"))
 
     # Flash errors in form and redirects to Register Form
     flash_errors(form)
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form, srchForm = Search())
 
 
 # user_loader callback. This callback is used to reload the user object from
@@ -115,6 +115,7 @@ def login():
             session['username'] = request.form['username']
             # Redirect to home page
             flash('Logged in Succesfully', 'success')
+            return redirect(url_for("dashboard"))
         else:
             # user does not exist or username/password incorrect
             flash(u'Invalid Credentials', 'error')
@@ -178,9 +179,10 @@ def createGrp():
         # Check if "username" POST requests exist
         if request.method == 'POST' and form.validate_on_submit():
             # Create variables for easy access
+            print("Hereeeee")
             gname = request.form['grp_name']
             purpose = request.form['purpose']
-            ce = request.form['ce']
+            ce = request.form['CEusername']
 
             # Check if user exists using MySQL
             mycursor.execute('SELECT * FROM grouped WHERE grp_name = %s', (gname,))
@@ -322,7 +324,6 @@ def dashboard():
     mycursor.execute('select grp_name from grouped join ucg on grouped.grp_id=ucg.grp_id where ucg.user_id = %s', (session['id'],))
     groups = mycursor.fetchall()
     print(groups)
-    print(groups[0][0])
 
     if request.method == 'POST' and srchForm.validate_on_submit():
         term = srchForm.searchTerm.data 
@@ -342,7 +343,7 @@ def dashboard():
             description = form.description.data 
             return jsonify(message = [{"message" : "Post Successful", "description": description}])
            
-    return render_template('dashboard.html', form=form, srchForm = srchForm, group = groups[0][0])
+    return render_template('dashboard.html', form=form, srchForm = srchForm, group = groups)
 
 
 @app.route('/friends/')

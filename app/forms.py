@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, TextAreaField, SubmitField
-from wtforms.validators import InputRequired, Email, DataRequired, Length, EqualTo
+from wtforms.validators import InputRequired, Email, DataRequired, Length
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 
@@ -13,13 +13,9 @@ class Registration(FlaskForm):
     f_name = StringField('First Name:', validators=[InputRequired()])
     l_name = StringField('Last Name', validators=[InputRequired()])
     email = StringField('Email Address', validators=[ DataRequired(), Email(message=('Please enter a valid email address.'))])
-    l_name = StringField('Last Name', validators=[InputRequired()])
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', [
         DataRequired(message="Please enter a password."),
-    ])
-    confirmPassword = PasswordField('Repeat Password', [
-        EqualTo('password', message='Passwords must match.')
     ])
 
 class AddFriend(FlaskForm):
@@ -30,7 +26,7 @@ class AddFriend(FlaskForm):
 class newGroup(FlaskForm):
     grp_name = StringField('Group Name:', validators=[InputRequired()])
     purpose = StringField('Purpose:', validators=[InputRequired()])
-    ce = StringField('Add Content Editor by Username:', validators=[InputRequired()])
+    CEusername = StringField('Add Content Editor by Username:', validators=[InputRequired()])
 
 class joinGrp(FlaskForm):
     grp_name = StringField('Group Name:', validators=[InputRequired()])
