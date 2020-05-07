@@ -2,28 +2,6 @@
 
 <div class="content">
   <div class="banner centre">
-    <form
-      action="{{ url_for('profile') }}"
-      method="post"
-      enctype="multipart/form-data"
-    >
-      <div>
-        <img class="propic mt-5 mb-3 relative" width="180" height="180" />
-        <span class="sleeve-title">Browse ...</span>
-
-        <div>
-          <img
-            class="absolute middle"
-            src="../static/icons/plusSign.png"
-            width="50"
-            height="50"
-          />
-          {{ uploadForm.propic(class='browse-hidden-profile')}}
-        </div>
-        <!-- <button type="submit" name="submit" class="post-btn">Post</button> -->
-      </div>
-    </form>
-
     <div class="profileName mb-3">{{session['username']}}</div>
   </div>
 
@@ -54,15 +32,15 @@
     <div class="mycard centre relative pb-0 mb-5">
       <form
         action="{{ url_for('profile') }}"
-        method="post"
+        method="POST"
         enctype="multipart/form-data"
       >
-        {{ form.csrf_token }} {{ form.description(class='form-control post',
+        {{ npost.csrf_token }} {{ npost.description(class='form-control post',
         placeholder = "Create new post..") }}
 
         <div class="sleeve">
           <span class="sleeve-title">Browse ...</span>
-          {{ form.photo(class='browse-hidden')}}
+          {{ npost.photo(class='browse-hidden')}}
         </div>
 
         <button type="submit" name="submit" class="post-btn ml-0">Post</button>

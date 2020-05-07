@@ -36,8 +36,8 @@ class createPost(FlaskForm):
     grp_name = StringField('Group Name:', validators=[InputRequired()])
 
 class NewPost(FlaskForm):
-    description = TextAreaField('Description', validators=[InputRequired()])
-    photo = FileField('Photo', validators=[FileAllowed(['jpg', 'png', 'Images only!'])])
+    description = TextAreaField(validators=[InputRequired()])
+    photo = FileField(validators=[FileAllowed(['jpg', 'png', 'Images only!'])])
 
 class Search(FlaskForm):
     searchTerm = StringField('searchTerm', validators=[InputRequired()])

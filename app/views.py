@@ -8,11 +8,11 @@ This file creates your application.
 from app import app, login_manager
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask import Flask, escape, request
-# from flask_login import login_user, logout_user, current_user, login_required
 from app.forms import LoginForm, Registration, AddFriend, newGroup, joinGrp, createPost, NewPost, Search, ProPicUpload
 from werkzeug.utils import secure_filename
-import mysql.connector
 
+import mysql.connector
+import os
 
 mydb = mysql.connector.connect(
     host="localhost",
@@ -33,11 +33,6 @@ def home():
     srchForm = Search()
     return render_template('home.html', srchForm=srchForm)
 
-@app.route('/2')
-def index2():
-    if 'username' in session:
-        return 'Logged in as %s' % escape(session['username'])
-    return 'You are not logged in'
 
 @app.route('/about/')
 def about():
@@ -373,34 +368,35 @@ def results():
     srchForm = Search()
     return render_template('results.html', srchForm = srchForm)
 
-
-@app.route('/profile/')
+@app.route('/profile/', methods=['POST', 'GET'])
 def profile():
     """Render website's home page."""
-    srchForm = Search()
-    form = NewPost()
-    uploadForm = ProPicUpload()
-
-    if request.method == 'POST' and form.validate_on_submit():
+    npost = NewPost()
+    # uploadForm = ProPicUpload()
+    print("start")
+    if request.method == 'POST' and npost.validate_on_submit():
         # Get file data and save to your uploads folder
-        if form.photo.data: #for both text and photo
-            photo = form.photo.data 
-            description = form.description.data
+        print("Here")
+        if npost.photo.data: #for both text and photo
+            photo = request.files['photo']
+            description = npost.description.data
+            print("Here2")
 
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return jsonify(message = [{"message" : "File Upload Successful", "filename": filename, "description": description}])
+            return redirect(url_for('home'))
         
         else: #only posts text
-            description = form.description.data 
-            return jsonify(message = [{"message" : "Post Successful", "description": description}])
+            print("Not")
+            description = npost.description.data 
+            return redirect(url_for('dashboard'))
 
-    if request.method == 'POST' and uploadForm.validate_on_submit(): 
-        propic = uploadForm.propic.data 
-        filename = secure_filename(propic.filename)
-        propic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    # if request.method == 'POST' and uploadForm.validate_on_submit(): 
+    #     propic = uploadForm.propic.data 
+    #     filename = secure_filename(propic.filename)
+    #     propic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    return render_template('profile.html', srchForm=srchForm, uploadForm = uploadForm, form = form)
+    return render_template('profile.html', srchForm=Search(), npost = NewPost())
 
 ###
 # The functions below should be applicable to all Flask apps.

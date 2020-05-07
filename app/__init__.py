@@ -1,9 +1,10 @@
 from flask import Flask
 from flask_login import LoginManager
 
-app = Flask(__name__)
+UPLOAD_FOLDER = './static/uploads'
+SECRET_KEY = 'secretK3y'
 
-app.secret_key = 'some_secret'
+app = Flask(__name__)
 
 # Flask-Login login manager
 login_manager = LoginManager()
