@@ -45,7 +45,8 @@ create table photo (
 create table posts (
     post_id int auto_increment not null,
     createdPost_date date,
-    post_type varchar(15) not null,
+    description varchar(500),
+    filename varchar(200),
     primary key(post_id)
 );
 
@@ -84,8 +85,9 @@ create table add_photo (
 create table create_post (
     user_id int not null,
     post_id int not null,
-    primary key(user_id),
-    foreign key (user_id) references user(user_id) on update cascade on delete cascade
+    primary key(user_id, post_id),
+    foreign key (user_id) references user(user_id) on update cascade on delete cascade,
+    foreign key (post_id) references posts(post_id) on update cascade on delete cascade
 );
 
 create table cv_post (

@@ -13,6 +13,8 @@ from werkzeug.utils import secure_filename
 
 import mysql.connector
 import os
+import datetime
+
 
 mydb = mysql.connector.connect(
     host="localhost",
@@ -32,6 +34,50 @@ def home():
     """Render website's home page."""
     srchForm = Search()
     return render_template('home.html', srchForm=srchForm)
+
+
+SECOND = 1
+MINUTE = 60 * SECOND
+HOUR = 60 * MINUTE
+DAY = 24 * HOUR
+MONTH = 30 * DAY
+
+@app.route('/2')
+def home2():
+    now = datetime.datetime.now()
+    delta_time = datetime.date(2020, 5, 6) - now
+
+    delta =  delta_time.days * DAY + delta_time.seconds 
+    minutes = delta / MINUTE
+    hours = delta / HOUR
+    days = delta / DAY
+
+
+    if delta < 1 * MINUTE:    
+      if delta == 1:
+          return  "one second to go"
+      else:
+          return str(delta) + " seconds to go"
+
+
+    if delta < 2 * MINUTE:    
+        return "a minute ago"
+
+
+    if delta < 45 * MINUTE:    
+        return str(minutes) + " minutes to go"
+
+    if delta < 90 * MINUTE:    
+        return "an hour ago"
+
+    if delta < 24 * HOUR:
+        return str(hours) + " hours to go"
+
+    if delta < 48 * HOUR:    
+        return "yesterday"
+
+    if delta < 30 * DAY:    
+        return str(days) + " days to go"
 
 
 @app.route('/about/')
@@ -360,9 +406,6 @@ def friends():
     else:
         return redirect(url_for('login'))
 
-    
-
-
 @app.route('/results/')
 def results():
     srchForm = Search()
@@ -372,31 +415,95 @@ def results():
 def profile():
     """Render website's home page."""
     npost = NewPost()
-    # uploadForm = ProPicUpload()
-    print("start")
+    uploadForm = ProPicUpload()
+
     if request.method == 'POST' and npost.validate_on_submit():
         # Get file data and save to your uploads folder
-        print("Here")
         if npost.photo.data: #for both text and photo
             photo = request.files['photo']
             description = npost.description.data
-            print("Here2")
 
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('home'))
+
+            x = datetime.datetime.now()
+            
+            sql = "INSERT INTO posts ( createdPost_date, description, filename) VALUES (%s, %s, %s)"
+            val = (x, description, filename)
+
+            mycursor.execute(sql, val)
+            mydb.commit()
+
+            print(mycursor.rowcount, "record inserted.")
+            print("1 record inserted, ID:", mycursor.lastrowid)
+
+            sql = "INSERT INTO create_post (user_id, post_id) VALUES (%s, %s)"
+            val = (session['id'], mycursor.lastrowid)
+
+            mycursor.execute(sql, val)
+            mydb.commit()
+
+            return render_template('profile.html', srchForm=Search(), npost = NewPost(), description=description, filename=filename, uploadForm = uploadForm, time=howlong(x))    
         
         else: #only posts text
-            print("Not")
             description = npost.description.data 
-            return redirect(url_for('dashboard'))
 
-    # if request.method == 'POST' and uploadForm.validate_on_submit(): 
-    #     propic = uploadForm.propic.data 
-    #     filename = secure_filename(propic.filename)
-    #     propic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            sql = "INSERT INTO posts ( createdPost_date, description) VALUES (%s, %s)"
+            val = (datetime.datetime.now(), description)
 
-    return render_template('profile.html', srchForm=Search(), npost = NewPost())
+
+            mycursor.execute(sql, val)
+            mydb.commit()
+            sql = "INSERT INTO create_post (user_id, post_id) VALUES (%s, %s)"
+
+            val = (session['id'], mycursor.lastrowid)
+            mycursor.execute(sql, val)
+            mydb.commit()
+
+            return render_template('profile.html', srchForm=Search(), npost = NewPost(), description=description, uploadForm = uploadForm, time=howlong(datetime.datetime.now()), filename='')    
+
+    if request.method == 'POST' and uploadForm.validate_on_submit(): 
+        propic = uploadForm.propic.data 
+        filename = secure_filename(propic.filename)
+        propic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    return render_template('profile.html', srchForm=Search(), npost = NewPost(), uploadForm = uploadForm, filename='Screenshot_1.png')
+
+
+def howlong(x):
+    now = datetime.datetime.now()
+    delta_time = now - x
+
+    delta =  delta_time.days * DAY + delta_time.seconds 
+    minutes = delta / MINUTE
+    hours = delta / HOUR
+    days = delta / DAY
+
+
+    if delta == 1:
+        return  "one second ago"
+    else:
+        return str(delta) + " seconds to go"
+
+    if delta < 2 * MINUTE:    
+        return "a minute ago"
+
+
+    if delta < 45 * MINUTE:    
+        return str(minutes) + " minutes to go"
+
+    if delta < 90 * MINUTE:    
+        return "an hour ago"
+
+    if delta < 24 * HOUR:
+        return str(hours) + " hours to go"
+
+    if delta < 48 * HOUR:    
+        return "yesterday"
+
+    if delta < 30 * DAY:    
+        return str(days) + " days to go"
+
 
 ###
 # The functions below should be applicable to all Flask apps.

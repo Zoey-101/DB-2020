@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 
-UPLOAD_FOLDER = './static/uploads'
+UPLOAD_FOLDER = 'C:\\Users\\Loretta\\Desktop\\MyBook\\app\\static\\uploads'
 SECRET_KEY = 'secretK3y'
 
 app = Flask(__name__)

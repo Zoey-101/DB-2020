@@ -2,6 +2,28 @@
 
 <div class="content">
   <div class="banner centre">
+    <form
+      action="{{ url_for('profile') }}"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <div>
+        <img class="propic mt-5 mb-3 relative" width="180" height="180" />
+        <span class="sleeve-title">Browse ...</span>
+
+        <div>
+          <img
+            class="absolute middle"
+            src="../static/icons/plusSign.png"
+            width="50"
+            height="50"
+          />
+          {{ uploadForm.propic(class='browse-hidden-profile')}}
+        </div>
+        <!-- <button type="submit" name="submit" class="post-btn">Post</button> -->
+      </div>
+    </form>
+
     <div class="profileName mb-3">{{session['username']}}</div>
   </div>
 
@@ -60,13 +82,19 @@
       </div>
       <div class="post-title">
         <span class="post-name ml-2">You</span> <br />
-        <span class="post-time ml-2">posted ---- </span>
+        <span class="post-time ml-2">posted {{time}} </span>
       </div>
 
       <hr />
 
       <div class="centre">
-        <img class="img-block mt-2" />
+        <p>{{ description }}</p>
+        {% if filename != "" %}
+        <img
+          src="{{ url_for('static', filename='uploads/' + filename) }}"
+          class="img-block mt-2"
+        />
+        {% endif %}
       </div>
     </div>
 
