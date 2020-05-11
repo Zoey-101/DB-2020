@@ -54,13 +54,14 @@
     </div>
 
     <hr />
-
     {% for user in users %} {% if user[0] == "Work" %}
     <div class="list-friends">
       <div class="mb-3 relative friends">
         <div class="thumbnail-pic">
-          <img />
-          <span class="post-name tiny">{{ user[1] }} {{ user[2] }}</span>
+          <a href="{{ url_for('friend_profile', username=user[3]) }}">
+            <img />
+            <span class="post-name tiny">{{ user[1] }} {{ user[2] }}</span>
+          </a>
         </div>
       </div>
     </div>

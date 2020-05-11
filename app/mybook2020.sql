@@ -39,7 +39,8 @@ create table user_profile (
 create table photo (
     photo_id int auto_increment not null,
     photo_name varchar(50) not null,
-    primary key(photo_id)
+    primary key(photo_id),
+    foreign key (photo_id) references user(user_id) on update cascade on delete cascade
 );
 
 create table posts (
@@ -91,10 +92,10 @@ create table create_post (
 );
 
 create table cv_post (
-    user_id int not null,
+    friend_id int not null,
     post_id int not null,
-    primary key(user_id, post_id),
-    foreign key (user_id) references user(user_id) on update cascade on delete cascade,
+    primary key(friend_id, post_id),
+    foreign key (friend_id) references friend_of(user_id) on update cascade on delete cascade,
     foreign key (post_id) references posts(post_id) on update cascade on delete cascade
 );
 
