@@ -334,18 +334,6 @@ def myFriends():
     else:
         return redirect(url_for('login'))
 
-# @app.route('/profile')
-# def profile():
-#     # Check if user is loggedin
-#     if 'username' in session:
-#         # We need all the user info for the user so we can display it on the profile page
-#         mycursor.execute('SELECT * FROM user WHERE id = %s', (session['id'],))
-#         user = mycursor.fetchone()
-#         # Show the profile page with user info
-#         return render_template('profile.html', user=user)
-#     # User is not loggedin redirect to login page
-#     return redirect(url_for('login'))
-
 @app.route('/myGroups', methods=['POST', 'GET'])
 def myGroups():
     if 'username' in session:
@@ -417,7 +405,19 @@ def profile():
     npost = NewPost()
     uploadForm = ProPicUpload()
 
+    mycursor.execute('SELECT posts.post_id, createdPost_date, description, filename FROM posts join create_post on create_post.post_id=posts.post_id and user_id = %s ORDER BY posts.post_id DESC', (session['id'],)) 
+    posts = mycursor.fetchall()
+
+    if request.method == 'POST' and uploadForm.validate_on_submit(): 
+        photo = request.files['photo']
+        filename = secure_filename(photo.filename)
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        print(mycursor.rowcount, "record inserted.")
+        print("1 record inserted, ID:", mycursor.lastrowid)
+
     if request.method == 'POST' and npost.validate_on_submit():
+        print("****")
         # Get file data and save to your uploads folder
         if npost.photo.data: #for both text and photo
             photo = request.files['photo']
@@ -442,8 +442,6 @@ def profile():
 
             mycursor.execute(sql, val)
             mydb.commit()
-
-            return render_template('profile.html', srchForm=Search(), npost = NewPost(), description=description, filename=filename, uploadForm = uploadForm, time=howlong(x))    
         
         else: #only posts text
             description = npost.description.data 
@@ -460,14 +458,16 @@ def profile():
             mycursor.execute(sql, val)
             mydb.commit()
 
-            return render_template('profile.html', srchForm=Search(), npost = NewPost(), description=description, uploadForm = uploadForm, time=howlong(datetime.datetime.now()), filename='')    
+        return redirect(url_for('profile'))  
 
-    if request.method == 'POST' and uploadForm.validate_on_submit(): 
-        propic = uploadForm.propic.data 
-        filename = secure_filename(propic.filename)
-        propic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    return render_template('profile.html', srchForm=Search(), npost = NewPost(), uploadForm = uploadForm, filename='Screenshot_1.png')
+        # x = datetime.datetime.now()
+        
+        # sql = "INSERT INTO posts ( createdPost_date, description, filename) VALUES (%s, %s, %s)"
+        # val = (x, description, filename)
+
+
+    return render_template('profile.html', srchForm=Search(), npost = NewPost(), uploadForm = ProPicUpload(), filename='', posts=posts)
 
 
 def howlong(x):
