@@ -574,8 +574,11 @@ def friends():
             'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
         profile_picture = mycursor.fetchone()
 
+        result_args = mycursor.callproc('GetNumberFriends', (session['id'],))
+        print(result_args)
+
         # Show the friends page with user info
-        return render_template('friends.html', users=users, profile_picture=profile_picture)
+        return render_template('friends.html', users=users, profile_picture=profile_picture, result_args=result_args)
 
     # User is not loggedin redirect to login page
     else:

@@ -137,9 +137,9 @@ delimiter ;
 
 
 DELIMITER //
- CREATE PROCEDURE GetFriends(IN user_id INT)
+ CREATE PROCEDURE GetNumberFriends(IN user_id INT)
  BEGIN
- 	SELECT friend_id FROM friend_of WHERE user_id = user_id;
+ 	SELECT count(friend_id) FROM friend_of WHERE user_id = user_id;
  END //
 DELIMITER ;
 
