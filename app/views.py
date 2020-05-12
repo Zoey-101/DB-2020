@@ -33,11 +33,14 @@ mycursor = mydb.cursor()
 @app.route('/')
 def home():
     """Render website's home page."""
-    mycursor.execute(
-        'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
-    profile_picture = mycursor.fetchone()
+    if 'username' in session:
+        mycursor.execute(
+            'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
+        profile_picture = mycursor.fetchone()
 
-    return render_template('home.html', profile_picture=profile_picture)
+        return render_template('home.html', profile_picture=profile_picture)
+    else:
+        return render_template('home.html')
 
 
 @app.route('/grpProfile/<grp_id>', methods=['POST', 'GET'])
