@@ -91,6 +91,7 @@ create table create_post (
     foreign key (post_id) references posts(post_id) on update cascade on delete cascade
 );
 
+
 create table cv_post (
     user_id int not null,
     post_id int not null,
@@ -110,6 +111,17 @@ create table UCG (
     foreign key (ce_id) references user(user_id) on update cascade on delete cascade,
     foreign key (grp_id) references grouped(grp_id) on update cascade on delete cascade
 );
+
+create table create_Grp_Post (
+    ce_id int not null,
+    grp_id int not null,
+    post_id int not null,
+    primary key(ce_id, grp_id, post_id),
+    foreign key (ce_id) references UCG(ce_id) on update cascade on delete cascade,
+    foreign key (grp_id) references UCG(grp_id) on update cascade on delete cascade,
+    foreign key (post_id) references posts(post_id) on update cascade on delete cascade
+);
+
 
 /*      PROCEDURES      */
 -- DATE TRIGGER

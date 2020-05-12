@@ -56,7 +56,7 @@ def grpProfile(grp_id):
     profile_picture = mycursor.fetchone()
 
     mycursor.execute(
-        'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
+        'SELECT * FROM photo WHERE photo_id = %s', (session['Group_ID'],))
     group_picture = mycursor.fetchone()
 
     mycursor.execute(
@@ -65,93 +65,104 @@ def grpProfile(grp_id):
     print(group)
 
     mycursor.execute(
-        'SELECT username from user join ucg on ucg.ce_id = user.user_id WHERE grp_id = %s', (grp_id,))
-    editors = mycursor.fetchall()
-    print(editors)
+        'SELECT posts.post_id, createdPost_date, description, filename FROM create_grp_post join posts on posts.post_id=create_grp_post.post_id and grp_id = %s ORDER BY posts.post_id DESC', (session['Group_ID'],))
+    g_posts = mycursor.fetchall()
+    print(g_posts)
 
-    if request.method == 'POST' and uploadForm.validate_on_submit():
-        photo = request.files['profPic']
-        filename = secure_filename(photo.filename)
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    mycursor.execute(
+        'SELECT DISTINCT username, user.user_id from user join ucg on ucg.user_id = user.user_id or ucg.ce_id=user.user_id where grp_id = %s and ucg.user_id = %s or ce_id = %s', (session['Group_ID'], session['id'], session['id'],))
+    valid_editors = mycursor.fetchall()
+    print(valid_editors)
 
-        if group_picture is None:
-            sql = "INSERT INTO photo ( photo_id, photo_name) VALUES (%s, %s)"
-            val = (session['id'], filename)
-        else:
-            sql = "UPDATE photo SET photo_name=%s WHERE photo_id = %s"
-            val = (filename, session['id'])
-        mycursor.execute(sql, val)
-        mydb.commit()
-
-        print(mycursor.rowcount, "New record inserted.")
-        print("Profile Pic uploaded, ID:", mycursor.lastrowid)
-
-        return redirect(url_for('profile'))
-
-    if request.method == 'POST' and form.validate_on_submit():
-        # Get file data and save to your uploads folder
-        if form.photo.data:  # for both text and photo
-            photo = request.files['photo']
-            description = form.description.data
-
+    if valid_editors:
+        # Upload Group Profile Picture
+        if request.method == 'POST' and uploadForm.validate_on_submit():
+            photo = request.files['profPic']
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-            x = datetime.datetime.now()
-
-            sql = "INSERT INTO posts ( createdPost_date, description, filename) VALUES (%s, %s, %s)"
-            val = (x, description, filename)
-
+            print("Heree")
+            if group_picture is None:
+                sql = "INSERT INTO photo ( photo_id, photo_name) VALUES (%s, %s)"
+                val = (session['Group_ID'], filename)
+            else:
+                sql = "UPDATE photo SET photo_name=%s WHERE photo_id = %s"
+                val = (filename, session['Group_ID'])
             mycursor.execute(sql, val)
             mydb.commit()
 
-            print(mycursor.rowcount, "record inserted.")
-            print("1 record inserted, ID:", mycursor.lastrowid)
+            print(mycursor.rowcount, "Group Profile Pic Updated.")
+            print("Group Profile Pic uploaded, ID:", mycursor.lastrowid)
 
-            sql = "INSERT INTO create_post (user_id, post_id) VALUES (%s, %s)"
-            val = (session['id'], mycursor.lastrowid)
+            return redirect(url_for('grpProfile', grp_id=session['Group_ID']))
 
-            mycursor.execute(sql, val)
-            mydb.commit()
+        # Create a Post
+        if request.method == 'POST' and form.validate_on_submit():
+            # Get file data and save to your uploads folder
+            if form.photo.data:  # for both text and photo
+                photo = request.files['photo']
+                description = form.description.data
 
-        else:  # only posts text
-            description = form.description.data
+                filename = secure_filename(photo.filename)
+                photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            sql = "INSERT INTO posts ( createdPost_date, description) VALUES (%s, %s)"
-            val = (datetime.datetime.now(), description)
+                x = datetime.datetime.now()
 
-            mycursor.execute(sql, val)
-            mydb.commit()
-            sql = "INSERT INTO create_post (user_id, post_id) VALUES (%s, %s)"
+                sql = "INSERT INTO posts ( createdPost_date, description, filename) VALUES (%s, %s, %s)"
+                val = (x, description, filename)
 
-            val = (session['id'], mycursor.lastrowid)
-            mycursor.execute(sql, val)
-            mydb.commit()
+                mycursor.execute(sql, val)
+                mydb.commit()
 
-    if request.method == 'POST' and ceForm.validate_on_submit():
-        username = ceForm.CEusername.data
-        mycursor.execute(
-            'SELECT * from user WHERE username = %s', (username,))
-        new_editor = mycursor.fetchone()
-        print(new_editor)
+                print(mycursor.rowcount, "record inserted.")
+                print("1 record inserted, ID:", mycursor.lastrowid)
 
-        if new_editor is not None:
-            sql = "INSERT INTO ucg (user_id, ce_id, grp_id) VALUES (%s, %s, %s)"
-            val = (session.get('id'), new_editor[0], grp_id)
+                sql = "INSERT INTO create_Grp_Post (ce_id, grp_id, post_id) VALUES (%s, %s, %s)"
+                val = (session['id'], session['Group_ID'], mycursor.lastrowid)
 
-            mycursor.execute(sql, val)
-            mydb.commit()
+                mycursor.execute(sql, val)
+                mydb.commit()
 
-            print("1 record inserted, ID:", mycursor.lastrowid)
-            flash('Successfully registered', 'success')
+            else:  # only posts text
+                description = form.description.data
 
+                sql = "INSERT INTO posts ( createdPost_date, description) VALUES (%s, %s)"
+                val = (datetime.datetime.now(), description)
+
+                mycursor.execute(sql, val)
+                mydb.commit()
+                sql = "INSERT INTO create_Grp_Post (ce_id, grp_id, post_id) VALUES (%s, %s, %s)"
+                val = (session['id'], session['Group_ID'], mycursor.lastrowid)
+
+                mycursor.execute(sql, val)
+                mydb.commit()
+
+            return redirect(url_for('grpProfile', grp_id=session['Group_ID']))
+
+        # Add a Content Editor
+        if request.method == 'POST' and ceForm.validate_on_submit():
+            username = ceForm.CEusername.data
             mycursor.execute(
-                'SELECT username from user join ucg on ucg.ce_id = user.user_id WHERE grp_id = %s', (grp_id,))
-            editors = mycursor.fetchall()
-        else:
-            flash('No such user', 'error')
+                'SELECT * from user WHERE username = %s', (username,))
+            new_editor = mycursor.fetchone()
+            print(new_editor)
 
-    return render_template('group_profile.html', uploadForm=uploadForm, form=form, ceForm=CEForm(), profile_picture=profile_picture, grp_id=grp_id, group=group, editors=editors, group_picture=group_picture)
+            if new_editor is not None:
+                sql = "INSERT INTO ucg (user_id, ce_id, grp_id) VALUES (%s, %s, %s)"
+                val = (session.get('id'), new_editor[0], grp_id)
+
+                mycursor.execute(sql, val)
+                mydb.commit()
+
+                print("1 record inserted, ID:", mycursor.lastrowid)
+                flash('Successfully registered', 'success')
+
+                mycursor.execute(
+                    'SELECT username from user join ucg on ucg.ce_id = user.user_id WHERE grp_id = %s', (grp_id,))
+                editors = mycursor.fetchall()
+            else:
+                flash('No such user', 'error')
+
+    return render_template('group_profile.html', uploadForm=uploadForm, form=NewPost(), ceForm=CEForm(), profile_picture=profile_picture, grp_id=grp_id, group=group, valid_editors=valid_editors, group_picture=group_picture, g_posts=g_posts)
 
 
 SECOND = 1
@@ -381,7 +392,7 @@ def createGrp():
         mycursor1 = mydb.cursor()
 
         mycursor.execute(
-            'SELECT DISTINCT grp_name, grouped.grp_id from grouped join ucg on grouped.grp_id=ucg.grp_id where ucg.user_id = %s', (session['id'],))
+            'SELECT DISTINCT grp_name, grouped.grp_id from grouped join ucg join join_group on grouped.grp_id=ucg.grp_id or grouped.grp_id=join_group.grp_id where ucg.user_id = %s', (session['id'],))
         groups = mycursor.fetchall()
         print(groups)
 
@@ -392,7 +403,6 @@ def createGrp():
         # Check if "username" POST requests exist
         if request.method == 'POST' and form.validate_on_submit():
             # Create variables for easy access
-            print("Hereeeee")
             gname = request.form['grp_name']
             purpose = request.form['purpose']
             ce = request.form['CEusername']
@@ -402,7 +412,6 @@ def createGrp():
                 'SELECT * FROM grouped WHERE grp_name = %s', (gname,))
             # Fetch one record and return result
             gp = mycursor.fetchone()
-            print(gp)
             if gp is None:
                 mycursor1.execute(
                     'SELECT * FROM user WHERE username = %s', (ce,))
