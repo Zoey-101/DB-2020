@@ -43,4 +43,4 @@ class Search(FlaskForm):
     searchTerm = StringField('searchTerm', validators=[InputRequired()])
 
 class ProPicUpload(FlaskForm):
-    photo = FileField(validators=[FileAllowed(['jpg', 'png', 'Images only!'])])
+    profPic = FileField(validators=[FileRequired(),FileAllowed(['jpg', 'png', 'Images only!'])])

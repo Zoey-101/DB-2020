@@ -31,17 +31,22 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('register') }}">Register</a>
         </li>
+<<<<<<< HEAD
         {% endif %} 
         
 
 
         {% if 'username' in session and session['username'] == 'admin' %}
 
+=======
+        {% endif %} {% if 'username' in session %}
+>>>>>>> 36fd07c11b99bc2490b1208e2a315c5ae9239b6f
         <li class="nav-item">
           <a class="nav-link mr-4 dark" href="{{ url_for('admin') }}"
             >Dashboard</a
           >
         </li>
+<<<<<<< HEAD
         <span class="vr"></span>
         <img class="d-inline-block align-top ml-1 circle" />
         <li class="nav-item">
@@ -50,16 +55,27 @@
           >
         </li>
 
+=======
+        <!-- <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('createGrp') }}">New Group</a>
+        </li> -->
+>>>>>>> 36fd07c11b99bc2490b1208e2a315c5ae9239b6f
         <li class="nav-item">
           <a class="nav-link mr-4" href="{{url_for('logout') }}"
             >Logout</a
           >
         </li>
+<<<<<<< HEAD
 
 
 
         {% elif 'username' in session %}
 
+=======
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+>>>>>>> 36fd07c11b99bc2490b1208e2a315c5ae9239b6f
         <li class="nav-item">
           <a class="nav-link mr-4 dark" href="{{ url_for('dashboard') }}"
             >Dashboard</a

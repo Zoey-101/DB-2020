@@ -598,3 +598,13 @@ a.nav-link.dark {
   margin-bottom: 2%;
   max-width: 32.3333%;
 }
+
+/* Profile Picture  */
+
+img.absolute.middle {
+  opacity: 0.5;
+}
+
+img.absolute.middle:hover {
+  opacity: 1;
+}
