@@ -1,15 +1,19 @@
-{% extends "base.html" %} {% block main %}
+{% extends "sidebar.html" %} {% block div %} 
 <div class="login-form center-block">
   <h2>Join a Group</h2>
   {% include 'flash_messages.html' %}
-  <form action="{{ url_for('joinGroup') }}" method="post">
+  <form action="{{ url_for('joinGroup') }}" method="post" class = "mycard mt-5">
     {{ form.csrf_token }}
-    <div class="form-group">
-      {{ form.grp_name.label }} {{ form.grp_name(class='form-control') }}
+    <div class="form-group mt-4 mb-4">
+      {{ form.grp_name.label }} {{ form.grp_name(class='form-control post mt-3') }}
     </div>
-    <button type="submit" name="submit" class="btn btn-primary btn-block">
-      Join Group
+
+
+    <button type="submit" name="submit" class="btn btn-primary sml-wt">
+      Save
     </button>
+
+
   </form>
 </div>
 {% endblock %}

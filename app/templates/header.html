@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg fixed-top pt-3 pb-3">
   <div class="container">
     <img
-      src="../static/icons/library.png"
+      src="/static/icons/library.png"
       class="d-inline-block align-top ml-3 mr-2"
       alt="Book Icon"
     />
@@ -20,10 +20,7 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <form action="{{ url_for('results', term=term) }}">
-          {{ srchForm.searchTerm(class='form-control srch', placeholder =
-          "Search") }}
-        </form>
+       
       </ul>
 
       <ul class="navbar-nav">
@@ -34,34 +31,55 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('register') }}">Register</a>
         </li>
-        {% endif %} {% if 'username' in session %}
-        <!-- <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('myFriends') }}">Your Friends</a>
-        </li>
+        {% endif %} 
+        
+
+
+        {% if 'username' in session and session['username'] == 'admin' %}
+
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('addfriend') }}">Add Friends</a>
+          <a class="nav-link mr-4 dark" href="{{ url_for('admin') }}"
+            >Dashboard</a
+          >
         </li>
+        <span class="vr"></span>
+        <img class="d-inline-block align-top ml-1 circle" />
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('createGrp') }}">New Group</a>
+          <a class="nav-link pl-1 ml-2 dark" href="{{ url_for('admin') }}"
+            >{{session['username']}}</a
+          >
         </li>
+
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('joinGroup') }}">Join Group</a>
+          <a class="nav-link mr-4" href="{{url_for('logout') }}"
+            >Logout</a
+          >
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-        </li> -->
+
+
+
+        {% elif 'username' in session %}
+
         <li class="nav-item">
           <a class="nav-link mr-4 dark" href="{{ url_for('dashboard') }}"
             >Dashboard</a
           >
         </li>
         <span class="vr"></span>
-        <img class="d-inline-block align-top mr-2 circle" />
+        <img class="d-inline-block align-top ml-1 circle" />
         <li class="nav-item">
-          <a class="nav-link pl-1 mr-3 dark" href="{{ url_for('profile') }}"
+          <a class="nav-link pl-1 ml-2 dark" href="{{ url_for('profile') }}"
             >{{session['username']}}</a
           >
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link mr-4" href="{{url_for('logout') }}"
+            >Logout</a
+          >
+        </li>
+
+
         {% endif %}
       </ul>
     </div>

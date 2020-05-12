@@ -69,7 +69,7 @@ create table join_group (
 create table friend_of (
     user_id int not null,
     friend_id int not null,
-    type varchar(20) not null,
+    type varchar(20) not null, /* type giving issues, is it a keyword? - JADA */
     primary key(user_id, friend_id),
     foreign key(user_id) references user(user_id) on update cascade on delete cascade,
     foreign key(friend_id) references user(user_id) on update cascade on delete restrict

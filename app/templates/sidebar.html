@@ -3,33 +3,53 @@
   <div class="col-4 sbar">
     <nav id="sidebar">
       <div class="sidebar-link">
+        {% if 'username' in session and session['username'] == 'admin' %}
+
+        <a href="{{ url_for('admin') }}" class="nav-link dark cover">
+          <p class="links smlgrow">
+            <img src="/static/icons/buildings.png" class="side-icon mr-2" />
+            Dashboard
+          </p>
+        </a>
+
+        {% elif 'username' in session %}
         <a href="{{ url_for('dashboard') }}" class="nav-link dark cover">
           <p class="links smlgrow">
-            <img src="../static/icons/buildings.png" class="side-icon mr-2" />
+            <img src="/static/icons/buildings.png" class="side-icon mr-2" />
             Dashboard
           </p>
         </a>
 
         <a href="{{ url_for('friends') }}" class="nav-link dark">
           <p class="links reg-link smlgrow">
-            <img src="../static/icons/user.png" class="side-icon mr-2" />
+            <img src="/static/icons/user.png" class="side-icon mr-2" />
             Your Friends
           </p>
         </a>
 
+        <a href="{{ url_for('addfriend') }}" class="nav-link dark">
+          <p class="links reg-link smlgrow">
+            <img src="/static/icons/plus.png" class="side-icon mr-2" />
+            Add Friends
+          </p>
+        </a>
+
+        <a href="{{ url_for('joinGroup') }}" class="nav-link dark">
+          <p class="links reg-link smlgrow">
+            <img src="/static/icons/plus.png" class="side-icon mr-2" />
+            Join Groups
+          </p>
+        </a>
+
+
         <a href="{{ url_for('myGroups') }}" class="nav-link smlgrow">
           <p class="links reg-link">
-            <img src="../static/icons/link.png" class="side-icon mr-2" />
+            <img src="/static/icons/link.png" class="side-icon mr-2" />
             Your Groups
           </p>
         </a>
 
-        <a class="nav-link">
-          <p class="links reg-link smlgrow">
-            <img src="../static/icons/mail.png" class="side-icon mr-2" />
-            Messages
-          </p>
-        </a>
+        {% endif %}
       </div>
     </nav>
   </div>

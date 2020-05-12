@@ -32,8 +32,7 @@ mycursor = mydb.cursor()
 @app.route('/')
 def home():
     """Render website's home page."""
-    srchForm = Search()
-    return render_template('home.html', srchForm=srchForm)
+    return render_template('home.html')
 
 
 SECOND = 1
@@ -80,11 +79,58 @@ def home2():
         return str(days) + " days to go"
 
 
-@app.route('/about/')
-def about():
-    """Render the website's about page."""
-    srchForm = Search()
-    return render_template('about.html', srchForm=srchForm)
+
+@app.route('/administrator/')
+def admin():
+    """Render the website's admin page."""
+    mycursor = mydb.cursor()
+    mycursor.execute('SELECT * FROM user WHERE username != %s', ('admin',))
+    allusers = mycursor.fetchall()
+
+    if 'username' in session and session['username'] == 'admin':
+        return render_template('admin.html', allusers = allusers)
+    else:
+        return render_template('home.html')
+
+
+@app.route('/administrator/friendreport/<user_id>')
+def friendreport(user_id):
+    """Render the website's admin friend report page."""
+
+    mycursor = mydb.cursor()
+
+    mycursor.execute('SELECT * FROM friend_of JOIN user on friend_of.friend_id = user.user_id WHERE friend_of.user_id = %s', (user_id,))
+    allfriends = mycursor.fetchall()
+
+    print(user_id)
+    print(allfriends)
+
+    if 'username' in session and session['username'] == 'admin':
+        return render_template('friend_report.html', allfriends = allfriends)
+    else:
+        return render_template('home.html')
+
+
+
+
+@app.route('/administrator/postreport/<user_id>')
+def postreport(user_id):
+    """Render the website's admin post report page."""
+
+    mycursor = mydb.cursor()
+
+    mycursor.execute('SELECT posts.post_id, createdPost_date, description, filename FROM posts join create_post on create_post.post_id=posts.post_id and user_id = %s ORDER BY posts.post_id DESC', (user_id,)) 
+    allposts = mycursor.fetchall()
+
+
+    if 'username' in session and session['username'] == 'admin':
+        return render_template('post_report.html', allposts = allposts)
+    else:
+        return render_template('home.html')
+
+
+
+
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -121,7 +167,7 @@ def register():
 
     # Flash errors in form and redirects to Register Form
     flash_errors(form)
-    return render_template('register.html', form=form, srchForm = Search())
+    return render_template('register.html', form=form)
 
 
 # user_loader callback. This callback is used to reload the user object from
@@ -132,7 +178,6 @@ def load_user(user_id):
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
-    srchForm = Search()
     form = LoginForm()
     mycursor = mydb.cursor()
 
@@ -155,13 +200,15 @@ def login():
             session['id'] = user[0]
             session['username'] = request.form['username']
             # Redirect to home page
-            flash('Logged in Succesfully', 'success')
-            return redirect(url_for("dashboard"))
+            if session['username'] == 'admin':
+                return redirect(url_for("admin"))
+            else:
+                return redirect(url_for("dashboard"))
         else:
             # user does not exist or username/password incorrect
             flash(u'Invalid Credentials', 'error')
 
-    return render_template("login.html", form=form, srchForm=srchForm)
+    return render_template("login.html", form=form)
 
 @app.route('/logout')
 def logout():
@@ -257,7 +304,7 @@ def createGrp():
                 # user does not exist or username/password incorrect
                 flash(u'Group Already Exists', 'error')
 
-        return render_template('createGrp.html', form = form, srchForm = Search())
+        return render_template('createGrp.html', form = form)
     else:
         return render_template('login.html', form = LoginForm())
 
@@ -328,7 +375,7 @@ def myFriends():
         users = mycursor.fetchall()
 
         # Show the friends page with user info
-        return render_template('myfriends.html', users=users, srchForm = Search())
+        return render_template('myfriends.html', users=users)
 
     # User is not loggedin redirect to login page
     else:
@@ -341,22 +388,18 @@ def myGroups():
         groups = mycursor.fetchall()
         print(groups)
 
-        return render_template('myGroups.html', srchForm = Search(), groups = groups)
+        return render_template('myGroups.html', groups = groups)
     else:
         return redirect(url_for('login'))
 
 @app.route('/dashboard', methods=['POST', 'GET'])
 def dashboard():
-    srchForm = Search()
     form = NewPost()
 
     mycursor.execute('select grp_name from grouped join ucg on grouped.grp_id=ucg.grp_id where ucg.user_id = %s', (session['id'],))
     groups = mycursor.fetchall()
     print(groups)
 
-    if request.method == 'POST' and srchForm.validate_on_submit():
-        term = srchForm.searchTerm.data 
-        results(term)
            
     if request.method == 'POST' and form.validate_on_submit():
         # Get file data and save to your uploads folder
@@ -372,7 +415,7 @@ def dashboard():
             description = form.description.data 
             return jsonify(message = [{"message" : "Post Successful", "description": description}])
            
-    return render_template('dashboard.html', form=form, srchForm = srchForm, group = groups)
+    return render_template('dashboard.html', form=form, group = groups)
 
 
 @app.route('/friends/')
@@ -387,17 +430,13 @@ def friends():
         print(users)
 
         # Show the friends page with user info
-        # return render_template('myfriends.html', users=users, srchForm = Search())
-        return render_template('friends.html', srchForm = Search(), users=users)
+        # return render_template('myfriends.html', users=users)
+        return render_template('friends.html', users=users)
 
     # User is not loggedin redirect to login page
     else:
         return redirect(url_for('login'))
 
-@app.route('/results/')
-def results():
-    srchForm = Search()
-    return render_template('results.html', srchForm = srchForm)
 
 @app.route('/profile/', methods=['POST', 'GET'])
 def profile():
@@ -467,8 +506,7 @@ def profile():
         # val = (x, description, filename)
 
 
-    return render_template('profile.html', srchForm=Search(), npost = NewPost(), uploadForm = ProPicUpload(), filename='', posts=posts)
-
+    return render_template('profile.html', npost = NewPost(), uploadForm = ProPicUpload(), filename='', posts=posts)
 
 def howlong(x):
     now = datetime.datetime.now()
@@ -542,8 +580,7 @@ def add_header(response):
 @app.errorhandler(404)
 def page_not_found(error):
     """Custom 404 page."""
-    srchForm = Search()
-    return render_template('404.html', srchForm=srchForm), 404
+    return render_template('404.html'), 404
 
 
 if __name__ == '__main__':

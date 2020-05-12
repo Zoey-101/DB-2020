@@ -58,6 +58,7 @@ img.d-inline-block.align-top {
 .circle {
   border-radius: 50%;
   background-color: #ececec;
+  height:32px;
 }
 
 a.nav-link.dark {
@@ -530,6 +531,61 @@ a.nav-link.dark {
   color: #6369ff;
   font-size: 18px;
 }
+
+/********** ADD FRIEND ************/
+
+.sml-wt{
+  width: 25%;
+}
+
+.btn-primary{
+  background-color: #2B68C2;
+}
+
+.btn-primary:hover{
+  background-color: rgb(38, 89, 167);
+}
+
+.btn-secondary{
+  background-color: #6369FF;
+}
+
+.btn-secondary:hover{
+  background-color: rgb(84, 89, 221);
+}
+
+
+.btn-tertiary{
+  background-color: #A0A4FF;
+  color: #fff;
+}
+
+.btn-tertiary:hover{
+  background-color: rgb(143, 147, 226);
+  color: #fff;
+}
+
+
+/************* ADMIN **************/
+.logo{
+  color:rgb(79, 147, 250);
+}
+
+.row-wt{
+  width: 34%;
+}
+
+.wt-lrg{
+  width: 100%;
+}
+
+.sml-fnt{
+  font-size: 13px;
+}
+
+
+
+
 
 /* LANAI ADDED  */
 
