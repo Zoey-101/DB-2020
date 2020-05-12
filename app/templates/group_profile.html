@@ -9,13 +9,13 @@
                 
                 <div>
                         <img class = "absolute middle" src = "../static/icons/plusSign.png" width = "50" height = "50">
-                        {{ uploadForm.propic(class='browse-hidden-profile')}}
+                        {{ uploadForm.profPic(class='browse-hidden-profile')}}
                 </div>
             <!-- <button type="submit" name="submit" class="post-btn">Post</button> -->
             </div>
         </form>
 
-        <div class = "profileName mb-3">Group Name</div>
+        <div class = "profileName mb-3">{{group[1]}}</div>
     </div>
 
 
@@ -60,72 +60,35 @@
         </div>
 
         <div class="modal-body pl-3 pl-3">
-
-          <div class = "row pl-5 mb-3">
-              <div class = "col-6">
-
-                <div class = "mb-3 relative">
-                    <div class = "thumbnail-pic">
-                        <img> 
-                    </div>
-                    <div class = "post-title">
-                        <span class = "post-name tiny ml-2">Friend's Name</span>
-                    </div>
-                </div>  
-
-              </div> 
-              <div class = "col-6">
-                  <button type="button" class="btn btn-secondary ml-5 mt-1">Remove</button>
-            </div> 
-          </div>
-
-          <div class = "row pl-5 mb-3">
-            <div class = "col-6">
-
-              <div class = "mb-3 relative">
-                  <div class = "thumbnail-pic">
-                      <img> 
-                  </div>
-                  <div class = "post-title">
-                      <span class = "post-name tiny ml-2">Friend's Name</span>
-                  </div>
-              </div>  
-
-            </div> 
-            <div class = "col-6">
-                <button type="button" class="btn btn-secondary ml-5 mt-1">Remove</button>
-          </div> 
-        </div>
-
-
+            {% for ce in editors %}
         <div class = "row pl-5 mb-3">
             <div class = "col-6">
-
               <div class = "mb-3 relative">
                   <div class = "thumbnail-pic">
                       <img> 
                   </div>
                   <div class = "post-title">
-                      <span class = "post-name tiny ml-2">Friend's Name</span>
+                      <span class = "post-name tiny ml-2">{{ce[0]}}</span>
                   </div>
               </div>  
 
             </div> 
             <div class = "col-6">
                 <button type="button" class="btn btn-secondary ml-5 mt-1">Remove</button>
-          </div> 
+            </div> 
         </div>
-
+        {% endfor %}
         <hr>
 
-        <form action="{{ url_for('grpProfile') }}" method="post" enctype="multipart/form-data" class = "mr-5 ml-5">
+
+        <form action="{{ url_for('grpProfile', grp_id = session['Group_ID'] ) }}" method="post" enctype="multipart/form-data" class = "mr-5 ml-5">
             {{ ceForm.csrf_token }}
             {{ ceForm.CEusername(class='form-control post', placeholder = "add content editor by username") }}
                
         </div>
 
         <div class="modal-footer">
-          <button type="submit" name="submit" class="btn btn-primary">Ok</button>
+          <button type="submit" name="submit" class="btn btn-primary">Add Editor</button>
         </div>
 
         </form>

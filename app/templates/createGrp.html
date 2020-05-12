@@ -6,8 +6,21 @@
 
 <div class = "mycard mt-5 mb-5">
 
-    <div class = "myrow">
-        <div class = "col-4 grp-tile mr-2" data-toggle="modal" data-target="#CEModal">
+    <div class = "row">
+        {% for group in groups %}
+    <div class="col-4 grp-tile ml-2">
+      <div class="grid-spacing">
+        <a href="{{ url_for('grpProfile', grp_id=group[1]) }}">
+          <div class="tile">
+            <div class="grp_title py-3">
+              {{ group[0] }}
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+        <div class = "col-4 grp-tile ml-2" data-toggle="modal" data-target="#CEModal">
             <img src="../static/icons/plusSign.png" width = "50" height = "50" class = "grow"/>
         </div>
 

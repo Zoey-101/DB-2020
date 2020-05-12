@@ -35,25 +35,33 @@
           <a class="nav-link" href="{{ url_for('register') }}">Register</a>
         </li>
         {% endif %} {% if 'username' in session %}
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" href="{{ url_for('addfriend') }}">Add Friends</a>
-        </li>
+        </li> -->
         <!-- <li class="nav-item">
           <a class="nav-link" href="{{ url_for('createGrp') }}">New Group</a>
         </li> -->
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" href="{{ url_for('joinGroup') }}">Join Group</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-        </li>
+        </li> -->
         <li class="nav-item">
           <a class="nav-link mr-4 dark" href="{{ url_for('dashboard') }}"
             >Dashboard</a
           >
         </li>
         <span class="vr"></span>
-        <img class="d-inline-block align-top mr-2 circle" />
+        {% if profile_picture != None %}
+        <img
+          src="{{ url_for('static', filename='uploads/' + profile_picture[1]) }}"
+          class="propic mr-2"
+          width="40"
+          height="40"
+        />
+        {% endif %}
+        <!-- <img class="d-inline-block align-top mr-2 circle" /> -->
         <li class="nav-item">
           <a class="nav-link pl-1 mr-3 dark" href="{{ url_for('profile') }}"
             >{{session['username']}}</a

@@ -92,10 +92,11 @@ create table create_post (
 );
 
 create table cv_post (
-    friend_id int not null,
+    user_id int not null,
     post_id int not null,
-    primary key(friend_id, post_id),
-    foreign key (friend_id) references friend_of(user_id) on update cascade on delete cascade,
+    comment varchar(500),
+    primary key(user_id, post_id),
+    foreign key (user_id) references friend_of(user_id) on update cascade on delete cascade,
     foreign key (post_id) references posts(post_id) on update cascade on delete cascade
 );
 
@@ -110,7 +111,7 @@ create table UCG (
     foreign key (grp_id) references grouped(grp_id) on update cascade on delete cascade
 );
 
-/*      DELIMITERS      */
+/*      PROCEDURES      */
 -- DATE TRIGGER
 Delimiter $$
     CREATE TRIGGER Date_Trigger
@@ -141,7 +142,11 @@ DELIMITER ;
 
 
 /*      LOAD CSV FILES IN DATABASE      */
-LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data_fake.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS (user_id, f_name, l_name, username, password, email );
+LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data_fake.csv' INTO TABLE user FIELDS TERMINATED BY '\r' LINES TERMINATED BY '\n' IGNORE 1 ROWS (user_id, f_name, l_name, username, password, email );
 
-LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/group_data_fake.csv' INTO TABLE grouped FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS (grp_id, grp_name, purpose);
+LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/group_data_fake.csv' INTO TABLE grouped FIELDS TERMINATED BY '\r' LINES TERMINATED BY '\n' IGNORE 1 ROWS (grp_id, grp_name, purpose);
 
+
+
+-- SHE IS MY FRIEND SHE CAN SEE MY PAGE
+-- I ADDED HER AS MY FRIEND SO SHE CAN SEE MY PAGE
