@@ -66,7 +66,15 @@
           >
         </li>
         <span class="vr"></span>
-        <img class="d-inline-block align-top ml-1 circle" />
+        {% if profile_picture != None %}
+        <img
+          src="{{ url_for('static', filename='uploads/' + profile_picture[1]) }}"
+          class="propic mr-2"
+          width="40"
+          height="40"
+        />
+        {% endif %}
+        <!-- <img class="d-inline-block align-top mr-2 circle" /> -->
         <li class="nav-item">
           <a class="nav-link pl-1 ml-2 dark" href="{{ url_for('profile') }}"
             >{{session['username']}}</a
