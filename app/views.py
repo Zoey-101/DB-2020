@@ -8,7 +8,7 @@ This file creates your application.
 from app import app, login_manager
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask import Flask, escape, request
-from app.forms import LoginForm, Registration, AddFriend, newGroup, joinGrp, createPost, NewPost, Search, ProPicUpload, CEForm
+from app.forms import LoginForm, Registration, AddFriend, newGroup, joinGrp, createPost, NewPost, ProPicUpload, CEForm
 from werkzeug.utils import secure_filename
 
 import mysql.connector
@@ -33,18 +33,16 @@ mycursor = mydb.cursor()
 @app.route('/')
 def home():
     """Render website's home page."""
-    srchForm = Search()
     mycursor.execute(
         'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
     profile_picture = mycursor.fetchone()
 
-    return render_template('home.html', srchForm=srchForm, profile_picture=profile_picture)
+    return render_template('home.html', profile_picture=profile_picture)
 
 
 @app.route('/grpProfile/<grp_id>', methods=['POST', 'GET'])
 def grpProfile(grp_id):
     """Render website's group profile page."""
-    srchForm = Search()
     form = NewPost()
     uploadForm = ProPicUpload()
     ceForm = CEForm()
@@ -150,7 +148,7 @@ def grpProfile(grp_id):
         else:
             flash('No such user', 'error')
 
-    return render_template('group_profile.html', srchForm=srchForm, uploadForm=uploadForm, form=form, ceForm=CEForm(), profile_picture=profile_picture, grp_id=grp_id, group=group, editors=editors, group_picture=group_picture)
+    return render_template('group_profile.html', uploadForm=uploadForm, form=form, ceForm=CEForm(), profile_picture=profile_picture, grp_id=grp_id, group=group, editors=editors, group_picture=group_picture)
 
 
 SECOND = 1
@@ -193,7 +191,6 @@ def home2():
         return str(days) + " days to go"
 
 
-
 @app.route('/administrator/')
 def admin():
     """Render the website's admin page."""
@@ -202,7 +199,7 @@ def admin():
     allusers = mycursor.fetchall()
 
     if 'username' in session and session['username'] == 'admin':
-        return render_template('admin.html', allusers = allusers)
+        return render_template('admin.html', allusers=allusers)
     else:
         return render_template('home.html')
 
@@ -213,18 +210,17 @@ def friendreport(user_id):
 
     mycursor = mydb.cursor()
 
-    mycursor.execute('SELECT * FROM friend_of JOIN user on friend_of.friend_id = user.user_id WHERE friend_of.user_id = %s', (user_id,))
+    mycursor.execute(
+        'SELECT * FROM friend_of JOIN user on friend_of.friend_id = user.user_id WHERE friend_of.user_id = %s', (user_id,))
     allfriends = mycursor.fetchall()
 
     print(user_id)
     print(allfriends)
 
     if 'username' in session and session['username'] == 'admin':
-        return render_template('friend_report.html', allfriends = allfriends)
+        return render_template('friend_report.html', allfriends=allfriends)
     else:
         return render_template('home.html')
-
-
 
 
 @app.route('/administrator/postreport/<user_id>')
@@ -233,18 +229,13 @@ def postreport(user_id):
 
     mycursor = mydb.cursor()
 
-    mycursor.execute('SELECT posts.post_id, createdPost_date, description, filename FROM posts join create_post on create_post.post_id=posts.post_id and user_id = %s ORDER BY posts.post_id DESC', (user_id,)) 
+    mycursor.execute('SELECT posts.post_id, createdPost_date, description, filename FROM posts join create_post on create_post.post_id=posts.post_id and user_id = %s ORDER BY posts.post_id DESC', (user_id,))
     allposts = mycursor.fetchall()
 
-
     if 'username' in session and session['username'] == 'admin':
-        return render_template('post_report.html', allposts = allposts)
+        return render_template('post_report.html', allposts=allposts)
     else:
         return render_template('home.html')
-
-
-
-
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -345,6 +336,10 @@ def addfriend():
         form = AddFriend()
         mycursor = mydb.cursor()
 
+        mycursor.execute(
+            'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
+        profile_picture = mycursor.fetchone()
+
         # Check if "username" POST requests exist
         if request.method == 'POST' and 'username' in request.form:
             # Create variables for easy access
@@ -371,7 +366,7 @@ def addfriend():
                 # user does not exist or username/password incorrect
                 flash(u'User does not exist', 'error')
 
-        return render_template('addfriend.html', form=form)
+        return render_template('addfriend.html', form=form, profile_picture=profile_picture)
     else:
         return render_template('login.html', form=LoginForm())
 
@@ -386,10 +381,6 @@ def createGrp():
             'SELECT DISTINCT grp_name, grouped.grp_id from grouped join ucg on grouped.grp_id=ucg.grp_id where ucg.user_id = %s', (session['id'],))
         groups = mycursor.fetchall()
         print(groups)
-
-        mycursor.execute(
-            'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
-        profile_picture = mycursor.fetchone()
 
         mycursor.execute(
             'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
@@ -449,6 +440,10 @@ def joinGroup():
         form = joinGrp()
         mycursor1 = mydb.cursor()
 
+        mycursor.execute(
+            'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
+        profile_picture = mycursor.fetchone()
+
         # Check if "username" POST requests exist
         if request.method == 'POST' and form.validate_on_submit():
             # Create variables for easy access
@@ -483,7 +478,7 @@ def joinGroup():
                 # Group does not exist
                 flash(u'Group does not exist', 'error')
 
-        return render_template('joingrp.html', form=form, srchForm=Search())
+        return render_template('joingrp.html', form=form, profile_picture=profile_picture)
     else:
         return render_template('login.html', form=LoginForm())
 
@@ -500,14 +495,15 @@ def newPost():
         flash('Post has been added', 'success')
         return redirect(url_for('home'))
     return render_template('upload.html', form=form)
-    
+
 
 @app.route('/myFriends')
 def myFriends():
     # Check if user is loggedin
     if 'username' in session:
         # We need all the user info for the user so we can display it on the profile page
-        mycursor.execute('select type, f_name, l_name from user join friend_of on user.user_id=friend_of.friend_id where friend_of.user_id = %s', (session['id'],))
+        mycursor.execute(
+            'select type, f_name, l_name from user join friend_of on user.user_id=friend_of.friend_id where friend_of.user_id = %s', (session['id'],))
 
         # Fetches all friends of the user who is logged in
         users = mycursor.fetchall()
@@ -532,10 +528,6 @@ def dashboard():
     mycursor.execute(
         'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
     profile_picture = mycursor.fetchone()
-
-    if request.method == 'POST' and srchForm.validate_on_submit():
-        term = srchForm.searchTerm.data
-        results(term)
 
     if request.method == 'POST' and form.validate_on_submit():
         # Get file data and save to your uploads folder
@@ -654,7 +646,7 @@ def profile():
             mydb.commit()
 
         return redirect(url_for('profile'))
-    return render_template('profile.html', srchForm=Search(), npost=NewPost(), uploadForm=ProPicUpload(), filename='', posts=posts, profile_picture=profile_picture, friend_post=NewPost(), username=session.get('username'))
+    return render_template('profile.html', npost=NewPost(), uploadForm=ProPicUpload(), filename='', posts=posts, profile_picture=profile_picture, friend_post=NewPost(), username=session.get('username'))
 
 
 @app.route('/<username>Profile/', methods=['POST', 'GET'])

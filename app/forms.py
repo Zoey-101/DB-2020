@@ -47,10 +47,6 @@ class NewPost(FlaskForm):
     photo = FileField(validators=[FileAllowed(['jpg', 'png', 'Images only!'])])
 
 
-class Search(FlaskForm):
-    searchTerm = StringField('searchTerm', validators=[InputRequired()])
-
-
 class ProPicUpload(FlaskForm):
     profPic = FileField(
         validators=[FileRequired(), FileAllowed(['jpg', 'png', 'Images only!'])])
