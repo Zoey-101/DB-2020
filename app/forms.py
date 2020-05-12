@@ -21,8 +21,8 @@ class Registration(FlaskForm):
 
 
 class AddFriend(FlaskForm):
-    username = StringField('Friend Username', validators=[InputRequired()])
-    type = SelectField('What is your personality type?', choices=[(0, 'Select an option'), (
+    username = StringField('Enter the username for the user you wish to add', validators=[InputRequired()])
+    type = SelectField('Choose their Category', choices=[(0, 'Select an option'), (
         'Relative', 'Relative'), ('School', 'School'), ('Work', 'Work')])
 
 
@@ -34,7 +34,7 @@ class newGroup(FlaskForm):
 
 
 class joinGrp(FlaskForm):
-    grp_name = StringField('Group Name:', validators=[InputRequired()])
+    grp_name = StringField('Enter the name of the group you wish to join', validators=[InputRequired()])
 
 
 class createPost(FlaskForm):
