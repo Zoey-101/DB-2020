@@ -168,46 +168,6 @@ def grpProfile(grp_id):
     return render_template('group_profile.html', uploadForm=uploadForm, form=NewPost(), ceForm=CEForm(), profile_picture=profile_picture, grp_id=grp_id, group=group, valid_editors=valid_editors, group_picture=group_picture, g_posts=g_posts)
 
 
-SECOND = 1
-MINUTE = 60 * SECOND
-HOUR = 60 * MINUTE
-DAY = 24 * HOUR
-MONTH = 30 * DAY
-
-
-@app.route('/2')
-def home2():
-    now = datetime.datetime.now()
-    delta_time = datetime.date(2020, 5, 6) - now
-
-    delta = delta_time.days * DAY + delta_time.seconds
-    minutes = delta / MINUTE
-    hours = delta / HOUR
-    days = delta / DAY
-    if delta < 1 * MINUTE:
-        if delta == 1:
-            return "one second to go"
-        else:
-            return str(delta) + " seconds to go"
-
-    if delta < 2 * MINUTE:
-        return "a minute ago"
-    if delta < 45 * MINUTE:
-        return str(minutes) + " minutes to go"
-
-    if delta < 90 * MINUTE:
-        return "an hour ago"
-
-    if delta < 24 * HOUR:
-        return str(hours) + " hours to go"
-
-    if delta < 48 * HOUR:
-        return "yesterday"
-
-    if delta < 30 * DAY:
-        return str(days) + " days to go"
-
-
 @app.route('/administrator/')
 def admin():
     """Render the website's admin page."""
@@ -655,17 +615,11 @@ def edit_post(post_id):
 
             return redirect(url_for('profile'))
 
-            # print(mycursor.rowcount, "record inserted.")
-            # print("1 record inserted, ID:", mycursor.lastrowid)
-
         else:  # only posts text
             description = npost.description.data
 
             sql = "UPDATE posts SET description = %s WHERE post_id = %s"
             val = (description, post_id)
-
-            print(post_id)
-
             mycursor.execute(sql, val)
             mydb.commit()
 
@@ -789,61 +743,12 @@ def friend_profile(username):
         'SELECT * from posts join cv_post on posts.post_id=cv_post.post_id join user on user.user_id = cv_post.user_id')
     comments = mycursor.fetchall()
 
-    print(comments)
 
     mycursor.execute('SELECT * FROM photo WHERE photo_id = %s', (friend[0],))
     friend_profile_picture = mycursor.fetchone()
-    print(friend_profile_picture)
-
-    # if request.method == 'POST' and friend_post.validate_on_submit():
-    #     # Only Text
-    #     description = friend_post.description.data
-
-    #     sql = "INSERT INTO posts ( createdPost_date, description) VALUES (%s, %s)"
-    #     val = (datetime.datetime.now(), description)
-
-    #     mycursor.execute(sql, val)
-    #     mydb.commit()
-    #     sql = "INSERT INTO cv_post (user_id, post_id) VALUES (%s, %s)"
-
-    #     val = (session['id'], mycursor.lastrowid)
-    #     mycursor.execute(sql, val)
-    #     mydb.commit()
 
     #     return redirect(url_for('friend_profile', username = username))
     return render_template('profile.html', npost=NewPost(), filename='', posts=posts, friend=friend, profile_picture=profile_picture, uploadForm=ProPicUpload(), friend_post=NewPost(), username=username, friend_profile_picture=friend_profile_picture, comments=comments)
-
-
-def howlong(x):
-    now = datetime.datetime.now()
-    delta_time = now - x
-
-    delta = delta_time.days * DAY + delta_time.seconds
-    minutes = delta / MINUTE
-    hours = delta / HOUR
-    days = delta / DAY
-
-    if delta == 1:
-        return "one second ago"
-    else:
-        return str(delta) + " seconds to go"
-
-    if delta < 2 * MINUTE:
-        return "a minute ago"
-    if delta < 45 * MINUTE:
-        return str(minutes) + " minutes to go"
-
-    if delta < 90 * MINUTE:
-        return "an hour ago"
-
-    if delta < 24 * HOUR:
-        return str(hours) + " hours to go"
-
-    if delta < 48 * HOUR:
-        return "yesterday"
-
-    if delta < 30 * DAY:
-        return str(days) + " days to go"
 
 
 ###
