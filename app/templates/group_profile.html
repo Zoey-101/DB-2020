@@ -3,7 +3,6 @@
 <div class = "content">
     <div class = "grpbanner centre">
         <form action="{{ url_for('grpProfile', grp_id = session['Group_ID'] ) }}" method="post" enctype="multipart/form-data">    
-            
             <div> {{ uploadForm.csrf_token }}
                 {% if group_picture != None %} 
             <img
@@ -15,13 +14,15 @@
               {% if group_picture == None %} 
             <img src="../static/icons/blank_group_profile.png" class="propic mt-5 mb-3 relative" width="180" height="180" />
             {% endif %}
-                {% if session.get('id') in valid_editors[1] %}
+            {% for ce in valid_editors %}
+                {% if session.get('id') in ce %}
                 <div>
                         <img class = "absolute middle" src = "../static/icons/plusSign.png" width = "50" height = "50">
                         {{ uploadForm.profPic(class='browse-hidden-profile')}}
                 </div>
                 <button type="submit" name="submit" class="post-btn">Post</button>
                 {% endif %}
+                {% endfor %}
             </div>
             
         </form>
@@ -34,13 +35,16 @@
     <div class = "posts">
         
         <div class = "mycard centre relative pt-0 pb-0 mb-5">
-            {% if session.get('id') in valid_editors[1] %}
+            {% for ce in valid_editors %}
+            {% if session.get('id') in ce %}
             <button class="CE-btn ml-0 mt-2 mb-2 smlgrow" data-toggle="modal" data-target="#CEModal">
                 Content Editors
             </button>
             {% endif %}
+            {% endfor %}
             <form action="{{ url_for('grpProfile', grp_id = session['Group_ID'] ) }}" method="post" enctype="multipart/form-data">
-                {% if session.get('id') in valid_editors[1] %}
+                {% for ce in valid_editors %}
+                {% if session.get('id') in ce %}
                 {{ form.csrf_token }}
         
                 {{ form.description(class='form-control post', placeholder = "Create new post..") }}
@@ -53,6 +57,7 @@
                 
                 <button type="submit" name="submit" class="post-btn ml-0">Post</button>
                 {%  endif %}
+                {%  endfor %}
             </form>
         </div>
 
@@ -84,9 +89,6 @@
                   </div>
               </div>  
 
-            </div> 
-            <div class = "col-6">
-                <button type="button" class="btn btn-secondary ml-5 mt-1">Remove</button>
             </div> 
         </div>
         {% endfor %}

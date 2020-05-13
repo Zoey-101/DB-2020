@@ -56,7 +56,7 @@ def grpProfile(grp_id):
     profile_picture = mycursor.fetchone()
 
     mycursor.execute(
-        'SELECT * FROM photo WHERE photo_id = %s', (session['Group_ID'],))
+        'SELECT * FROM group_photo WHERE photo_id = %s', (session['Group_ID'],))
     group_picture = mycursor.fetchone()
 
     mycursor.execute(
@@ -80,15 +80,18 @@ def grpProfile(grp_id):
             photo = request.files['profPic']
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print("Heree")
             if group_picture is None:
-                sql = "INSERT INTO photo ( photo_id, photo_name) VALUES (%s, %s)"
+                print("Th")
+                sql = "INSERT INTO group_photo ( photo_id, photo_name) VALUES (%s, %s)"
                 val = (session['Group_ID'], filename)
+                mycursor.execute(sql, val)
+                mydb.commit()
             else:
-                sql = "UPDATE photo SET photo_name=%s WHERE photo_id = %s"
+                print("Hkeko")
+                sql = "UPDATE group_photo SET photo_name=%s WHERE photo_id = %s"
                 val = (filename, session['Group_ID'])
-            mycursor.execute(sql, val)
-            mydb.commit()
+                mycursor.execute(sql, val)
+                mydb.commit()
 
             print(mycursor.rowcount, "Group Profile Pic Updated.")
             print("Group Profile Pic uploaded, ID:", mycursor.lastrowid)
@@ -377,7 +380,7 @@ def addfriend():
 
                     # LAZY WAY OF ENSURING FRIENDS REFLECTS ON BOTH USERS
                     sql = "INSERT INTO friend_of (user_id, friend_id, type) VALUES (%s, %s, %s)"
-                    val = (friend[0],session['id'], type)
+                    val = (friend[0], session['id'], type)
 
                     mycursor.execute(sql, val)
                     mydb.commit()
@@ -406,6 +409,11 @@ def createGrp():
             'SELECT DISTINCT grp_name, grouped.grp_id from grouped join ucg join join_group on grouped.grp_id=ucg.grp_id or grouped.grp_id=join_group.grp_id where ucg.user_id = %s', (session['id'],))
         groups = mycursor.fetchall()
         print(groups)
+
+        if groups == []:
+            mycursor.execute(
+                'select grp_name, join_group.grp_id from grouped join join_group on grouped.grp_id=join_group.grp_id where join_group.user_id = %s', (session['id'],))
+            groups = mycursor.fetchall()
 
         result_args = mycursor.callproc('GetGroupAmount', (session['id'],))
         print(result_args)
@@ -449,6 +457,7 @@ def createGrp():
                     mycursor1.execute(sql, val)
                     mydb.commit()
                     flash('Group Created', 'success')
+                    return redirect(url_for('createGrp'))
                 else:
                     flash('Username does not exist', 'error')
             else:
@@ -523,8 +532,6 @@ def newPost():
     return render_template('upload.html', form=form)
 
 
-
-
 @app.route('/dashboard', methods=['POST', 'GET'])
 def dashboard():
     form = NewPost()
@@ -534,14 +541,18 @@ def dashboard():
     groups = mycursor.fetchall()
     print(groups)
 
+    if groups == []:
+        mycursor.execute(
+            'select grp_name, join_group.grp_id from grouped join join_group on grouped.grp_id=join_group.grp_id where join_group.user_id = %s', (session['id'],))
+        groups = mycursor.fetchall()
+
     mycursor.execute(
         'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
     profile_picture = mycursor.fetchone()
-
-
-    mycursor.execute('SELECT * FROM posts join create_post on create_post.post_id=posts.post_id join friend_of on friend_of.friend_id = create_post.user_id join user on user.user_id = friend_of.friend_id WHERE friend_of.user_id = %s ORDER BY posts.createdPost_date DESC', (session['id'],))
+    mycursor.execute(
+        'SELECT * FROM posts join create_post on create_post.post_id=posts.post_id join friend_of on friend_of.friend_id = create_post.user_id join user on user.user_id = friend_of.friend_id WHERE friend_of.user_id = %s ORDER BY posts.createdPost_date DESC', (session['id'],))
     allposts = mycursor.fetchall()
-    print ('HERE: ', allposts)
+    print('HERE: ', allposts)
 
     if request.method == 'POST' and form.validate_on_submit():
         # Get file data and save to your uploads folder
@@ -585,7 +596,7 @@ def dashboard():
 
             redirect(url_for('dashboard'))
 
-    return render_template('dashboard.html', form=form, group=groups, profile_picture=profile_picture, allposts = allposts)
+    return render_template('dashboard.html', form=form, group=groups, profile_picture=profile_picture, allposts=allposts)
 
 
 @app.route('/friends/')
@@ -623,7 +634,6 @@ def edit_post(post_id):
         'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
     profile_picture = mycursor.fetchone()
 
-
     mycursor.execute(
         'SELECT * FROM posts WHERE post_id = %s', (post_id,))
     oldpost = mycursor.fetchone()
@@ -648,7 +658,6 @@ def edit_post(post_id):
             # print(mycursor.rowcount, "record inserted.")
             # print("1 record inserted, ID:", mycursor.lastrowid)
 
-
         else:  # only posts text
             description = npost.description.data
 
@@ -661,11 +670,8 @@ def edit_post(post_id):
             mydb.commit()
 
             return redirect(url_for('profile'))
-            
 
-    return render_template('edit_post.html', profile_picture=profile_picture, npost = npost, oldpost = oldpost)
-
-
+    return render_template('edit_post.html', profile_picture=profile_picture, npost=npost, oldpost=oldpost)
 
 
 @app.route('/profile/', methods=['POST', 'GET'])
@@ -751,13 +757,13 @@ def comments(post_id):
     friend_post = NewPost()
     if request.method == 'POST' and friend_post.validate_on_submit():
         description = friend_post.description.data
-        
+
         sql = "INSERT INTO cv_post (user_id, post_id,comment) VALUES (%s, %s, %s)"
         val = (session['id'], post_id, description)
 
         mycursor.execute(sql, val)
         mydb.commit()
-        
+
         return redirect(url_for('dashboard'))
 
 
@@ -805,7 +811,7 @@ def friend_profile(username):
     #     mydb.commit()
 
     #     return redirect(url_for('friend_profile', username = username))
-    return render_template('profile.html', npost=NewPost(), filename='', posts=posts, friend = friend, profile_picture=profile_picture, uploadForm=ProPicUpload(), friend_post=NewPost(), username=username, friend_profile_picture=friend_profile_picture, comments=comments)
+    return render_template('profile.html', npost=NewPost(), filename='', posts=posts, friend=friend, profile_picture=profile_picture, uploadForm=ProPicUpload(), friend_post=NewPost(), username=username, friend_profile_picture=friend_profile_picture, comments=comments)
 
 
 def howlong(x):

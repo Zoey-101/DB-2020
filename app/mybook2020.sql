@@ -43,6 +43,13 @@ create table photo (
     foreign key (photo_id) references user(user_id) on update cascade on delete cascade
 );
 
+create table group_photo (
+    photo_id int auto_increment not null,
+    photo_name varchar(50) not null,
+    primary key(photo_id),
+    foreign key (photo_id) references grouped(grp_id) on update cascade on delete cascade
+);
+
 create table posts (
     post_id int auto_increment not null,
     createdPost_date date,
@@ -117,7 +124,7 @@ create table create_Grp_Post (
     grp_id int not null,
     post_id int not null,
     primary key(ce_id, grp_id, post_id),
-    foreign key (ce_id) references UCG(ce_id) on update cascade on delete cascade,
+    foreign key (ce_id) references User(user_id) on update cascade on delete cascade,
     foreign key (grp_id) references UCG(grp_id) on update cascade on delete cascade,
     foreign key (post_id) references posts(post_id) on update cascade on delete cascade
 );
@@ -147,7 +154,7 @@ DELIMITER ;
 DELIMITER //
  CREATE PROCEDURE GetGroupAmount(IN user_id INT)
  BEGIN
- SELECT count(distinct grp_name) FROM Grouped JOIN UCG ON grouped.grp_id = UCG.grp_id WHERE user_id = user_id;
+ SELECT count(user_id) from UCG where user_id = user_id;
  END //
 DELIMITER ;
 
