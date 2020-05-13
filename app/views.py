@@ -743,7 +743,6 @@ def friend_profile(username):
         'SELECT * from posts join cv_post on posts.post_id=cv_post.post_id join user on user.user_id = cv_post.user_id')
     comments = mycursor.fetchall()
 
-
     mycursor.execute('SELECT * FROM photo WHERE photo_id = %s', (friend[0],))
     friend_profile_picture = mycursor.fetchone()
 
