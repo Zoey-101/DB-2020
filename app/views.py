@@ -396,6 +396,9 @@ def createGrp():
         groups = mycursor.fetchall()
         print(groups)
 
+        result_args = mycursor.callproc('GetGroupAmount', (session['id'],))
+        print(result_args)
+
         mycursor.execute(
             'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
         profile_picture = mycursor.fetchone()
@@ -441,7 +444,7 @@ def createGrp():
                 # user does not exist or username/password incorrect
                 flash(u'Group Already Exists', 'error')
 
-        return render_template('createGrp.html', form=form, profile_picture=profile_picture, groups=groups)
+        return render_template('createGrp.html', form=form, profile_picture=profile_picture, groups=groups, result_args=result_args[0])
     else:
         return render_template('login.html', form=LoginForm())
 

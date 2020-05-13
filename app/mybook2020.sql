@@ -139,7 +139,7 @@ delimiter ;
 DELIMITER //
  CREATE PROCEDURE GetNumberFriends(IN user_id INT)
  BEGIN
- 	SELECT count(friend_id) FROM friend_of WHERE user_id = user_id;
+ 	SELECT count(distinct friend_id) FROM friend_of WHERE user_id = user_id;
  END //
 DELIMITER ;
 
@@ -147,7 +147,7 @@ DELIMITER ;
 DELIMITER //
  CREATE PROCEDURE GetGroupAmount(IN user_id INT)
  BEGIN
- SELECT count(group_id) FROM Grouped JOIN UCG ON group.group_id = UCG.group_id WHERE user_id = user_id;
+ SELECT count(distinct grp_name) FROM Grouped JOIN UCG ON grouped.grp_id = UCG.grp_id WHERE user_id = user_id;
  END //
 DELIMITER ;
 
@@ -158,7 +158,3 @@ LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV F
 
 LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/group_data_fake.csv' INTO TABLE grouped FIELDS TERMINATED BY '\r' LINES TERMINATED BY '\n' IGNORE 1 ROWS (grp_id, grp_name, purpose);
 
-
-
--- SHE IS MY FRIEND SHE CAN SEE MY PAGE
--- I ADDED HER AS MY FRIEND SO SHE CAN SEE MY PAGE
