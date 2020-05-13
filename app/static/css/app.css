@@ -16,7 +16,32 @@ body {
 
 hr {
   border-top: 1.97px solid #ececec;
-  margin-top: 6px;
+  margin-top: 10px;
+}
+
+.animate{
+  position: relative;
+  animation-name: example;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes example {
+    0%   { left:0px; top:0px;}
+    25%  {left:200px; top:0px;}
+    50%  {left:200px; top:200px;}
+    75%  {left:0px; top:200px;}
+    100% {left:0px; top:0px;}
+  }
+
+
+.comments_area{
+  font-size: 14px;
+}
+
+
+.cmt-header{
+  color: #999cee;
 }
 /************************   Header      ******************************/
 
@@ -353,8 +378,8 @@ a.nav-link.dark {
 }
 
 .img-block {
-  width: 320px;
-  height: 300px;
+  width: 240px;
+  height: 240px;
   background-color: #ececec;
   border: none;
   border-radius: 5px;
@@ -383,8 +408,9 @@ a.nav-link.dark {
   color: #424242;
   position: absolute;
   top: 0.8rem;
-  right: 2.6rem;
+  left: 3.6rem;
 }
+
 
 .mycard.scroll {
   height: 440px;
@@ -532,6 +558,19 @@ a.nav-link.dark {
   font-size: 18px;
 }
 
+hr.thin{
+  border-top: 1.04px solid #ececec;
+}
+
+.cmt-card{
+  border-color: #b5b8ff;
+}
+
+.thumbnail-pic.smlr{
+  width: 30px;
+  height: 30px;
+}
+
 /********** ADD FRIEND ************/
 
 .sml-wt{
@@ -618,4 +657,12 @@ img.absolute.middle:hover {
 
 img.pencil {
   width: 3%;
+}
+
+
+
+/******** EDIT_POST *************/
+.sleeve.editable{
+  right: 0;
+  top: 0
 }

@@ -22,8 +22,8 @@ class Registration(FlaskForm):
 
 class AddFriend(FlaskForm):
     username = StringField('Enter the username for the user you wish to add', validators=[InputRequired()])
-    type = SelectField('Choose their Category', choices=[(0, 'Select an option'), (
-        'Relative', 'Relative'), ('School', 'School'), ('Work', 'Work')])
+    type = SelectField('Choose their Category', choices=[(0, 'Must choose a category'), (
+        'Relative', 'Relative'), ('School', 'School'), ('Work', 'Work')], validators=[InputRequired()])
 
 
 class newGroup(FlaskForm):

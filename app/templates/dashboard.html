@@ -1,5 +1,5 @@
 {% extends "sidebar.html" %} {% block div %}
-<div class="mycard relative pb-0">
+<div class="mycard relative pb-0 centre">
   <form
     action="{{ url_for('dashboard') }}"
     method="post"
@@ -61,9 +61,39 @@
   </div>
 </div>
 
-<div class="alert alert-info">
+{% for post in allposts %} 
+    <div class="mycard mb-5">
+      <div class="thumbnail-pic">
+        
+      </div>
+ 
+      <div class="post-title">
+        <span class="post-name ml-2">{{ post[12]}}</span> 
+        {% if session['username'] == post[12] %}
+          <a href="{{ url_for('edit_post', post_id=post[0])}}">
+            <img src="../static/icons/pencil.png" class="pencil ml-2" />
+          </a>
+        {% endif %}
+        <br />
+        <span class="post-time ml-2">Posted on {{post[1]}} </span>
+      </div>
+
+      <hr />
+
+      <div class="centre">
+        <p>{{ post[2] }}</p>
+
+        {% if post[3] != None %} 
+          <img src="{{ url_for('static', filename='uploads/' + post[3]) }}" class="img-block mt-2"/> 
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+
+<!-- <div class="alert alert-info">
   Currently no posts on your feed
-</div>
+</div> -->
 
 <!-- PHOTO POST LAYOUT
 <div class = "mycard mb-5">

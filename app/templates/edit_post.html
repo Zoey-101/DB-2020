@@ -1,0 +1,52 @@
+{% extends "sidebar.html" %} {% block div %}
+<div class = "page-header">Edit Post</div>
+<div class="login-form center-block">
+  {% include 'flash_messages.html' %}
+  <form action="{{ url_for('edit_post', post_id=oldpost[0])}}" method="post" enctype="multipart/form-data" 
+  class = "mycard mt-5">
+
+
+    <div class="thumbnail-pic">
+      {% if profile_picture %}
+        <img
+          src="{{ url_for('static', filename='uploads/' + profile_picture[1]) }}"
+          class="propic mr-2"
+          width="50"
+          height="50"
+        />
+        {% endif %}
+      </div>
+
+
+    <div class="post-title">
+        
+        <span class="post-name ml-2">You</span>
+        <br />
+        <span class="post-time ml-2">Posted on {{ oldpost[1] }} </span>  
+      </div>
+
+      <hr />
+
+    <div class = "post-edit relative centre">
+        {{ npost.csrf_token }} {{ npost.description(class='form-control post',
+        placeholder = oldpost[2]) }}
+
+        <div class="sleeve editable">
+            <span class="sleeve-title">Browse ...</span>
+            {{ npost.photo(class='browse-hidden')}}
+        </div>
+        
+        {% if oldpost[3] != None %} 
+            <div class="centre mt-3">
+                <img
+                    src="{{ url_for('static', filename='uploads/' + oldpost[3]) }}" class="img-block mt-2"/> 
+            </div>
+        {% endif %}
+
+          <button type="submit" name="submit" class="post-btn mt-2 ml-0">Save</button>
+    </div>
+
+      
+  </form>
+</div>
+{% endblock %}

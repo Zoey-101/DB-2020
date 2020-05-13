@@ -154,7 +154,11 @@ DELIMITER ;
 
 
 /*      LOAD CSV FILES IN DATABASE      */
-LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data_fake.csv' INTO TABLE user FIELDS TERMINATED BY '\r' LINES TERMINATED BY '\n' IGNORE 1 ROWS (user_id, f_name, l_name, username, password, email );
+-- LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data_fake.csv' INTO TABLE user FIELDS TERMINATED BY '\r' LINES TERMINATED BY '\n' IGNORE 1 ROWS (user_id, f_name, l_name, username, password, email );
 
-LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/group_data_fake.csv' INTO TABLE grouped FIELDS TERMINATED BY '\r' LINES TERMINATED BY '\n' IGNORE 1 ROWS (grp_id, grp_name, purpose);
+-- LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/group_data_fake.csv' INTO TABLE grouped FIELDS TERMINATED BY '\r' LINES TERMINATED BY '\n' IGNORE 1 ROWS (grp_id, grp_name, purpose);
+
+LOAD DATA LOCAL INFILE 'C:/Program Files/heroku/flasky/DB-2020/app/static/scripts/CSV Files/user_data_fake.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r' IGNORE 1 ROWS (user_id, f_name, l_name, username, password, email );
+
+LOAD DATA LOCAL INFILE 'C:/Program Files/heroku/flasky/DB-2020/app/static/scripts/CSV Files/group_data_fake.csv' INTO TABLE grouped FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r' IGNORE 1 ROWS (grp_id, grp_name, purpose);
 

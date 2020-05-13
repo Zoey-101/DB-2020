@@ -356,29 +356,40 @@ def addfriend():
 
         # Check if "username" POST requests exist
         if request.method == 'POST' and 'username' in request.form:
-            # Create variables for easy access
-            username = request.form['username']
-            type = request.form['type']
+            if form.validate_on_submit():
+                # Create variables for easy access
+                username = request.form['username']
+                type = request.form['type']
 
-            # Check if user exists using MySQL
-            mycursor.execute(
-                'SELECT * FROM user WHERE username = %s', (username,))
-            # Fetch one record and return result
-            friend = mycursor.fetchone()
-            print(friend)
-            if friend:
-                sql = "INSERT INTO friend_of (user_id, friend_id, type) VALUES (%s, %s, %s)"
-                val = (session['id'], friend[0], type)
+                # Check if user exists using MySQL
+                mycursor.execute(
+                    'SELECT * FROM user WHERE username = %s', (username,))
+                # Fetch one record and return result
+                friend = mycursor.fetchone()
+                print(friend)
+                print('0')
+                if friend:
+                    sql = "INSERT INTO friend_of (user_id, friend_id, type) VALUES (%s, %s, %s)"
+                    val = (session['id'], friend[0], type)
 
-                mycursor.execute(sql, val)
-                mydb.commit()
+                    mycursor.execute(sql, val)
+                    mydb.commit()
 
-                print(mycursor.rowcount, "record inserted.")
-                print("1 record inserted, ID:", mycursor.lastrowid)
-                flash('Friend Added', 'success')
+                    # LAZY WAY OF ENSURING FRIENDS REFLECTS ON BOTH USERS
+                    sql = "INSERT INTO friend_of (user_id, friend_id, type) VALUES (%s, %s, %s)"
+                    val = (friend[0],session['id'], type)
+
+                    mycursor.execute(sql, val)
+                    mydb.commit()
+
+                    print(mycursor.rowcount, "record inserted.")
+                    print("1 record inserted, ID:", mycursor.lastrowid)
+                    flash('Friend Added', 'success')
+                else:
+                    # user does not exist or username/password incorrect
+                    flash('User does not exist', 'error')
             else:
-                # user does not exist or username/password incorrect
-                flash(u'User does not exist', 'error')
+                flash_errors(form)
 
         return render_template('addfriend.html', form=form, profile_picture=profile_picture)
     else:
@@ -512,23 +523,6 @@ def newPost():
     return render_template('upload.html', form=form)
 
 
-@app.route('/myFriends')
-def myFriends():
-    # Check if user is loggedin
-    if 'username' in session:
-        # We need all the user info for the user so we can display it on the profile page
-        mycursor.execute(
-            'select type, f_name, l_name from user join friend_of on user.user_id=friend_of.friend_id where friend_of.user_id = %s', (session['id'],))
-
-        # Fetches all friends of the user who is logged in
-        users = mycursor.fetchall()
-
-        # Show the friends page with user info
-        return render_template('myfriends.html', users=users)
-
-    # User is not loggedin redirect to login page
-    else:
-        return redirect(url_for('login'))
 
 
 @app.route('/dashboard', methods=['POST', 'GET'])
@@ -544,21 +538,54 @@ def dashboard():
         'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
     profile_picture = mycursor.fetchone()
 
+
+    mycursor.execute('SELECT * FROM posts join create_post on create_post.post_id=posts.post_id join friend_of on friend_of.friend_id = create_post.user_id join user on user.user_id = friend_of.friend_id WHERE friend_of.user_id = %s ORDER BY posts.createdPost_date DESC', (session['id'],))
+    allposts = mycursor.fetchall()
+    print ('HERE: ', allposts)
+
     if request.method == 'POST' and form.validate_on_submit():
         # Get file data and save to your uploads folder
         if form.photo.data:  # for both text and photo
-            photo = form.photo.data
+            photo = request.files['photo']
             description = form.description.data
 
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return jsonify(message=[{"message": "File Upload Successful", "filename": filename, "description": description}])
+
+            x = datetime.datetime.now()
+
+            sql = "INSERT INTO posts ( createdPost_date, description, filename) VALUES (%s, %s, %s)"
+            val = (x, description, filename)
+
+            mycursor.execute(sql, val)
+            mydb.commit()
+
+            print(mycursor.rowcount, "record inserted.")
+            print("1 record inserted, ID:", mycursor.lastrowid)
+
+            sql = "INSERT INTO create_post (user_id, post_id) VALUES (%s, %s)"
+            val = (session['id'], mycursor.lastrowid)
+
+            mycursor.execute(sql, val)
+            mydb.commit()
 
         else:  # only posts text
             description = form.description.data
-            return jsonify(message=[{"message": "Post Successful", "description": description}])
 
-    return render_template('dashboard.html', form=form, group=groups, profile_picture=profile_picture)
+            sql = "INSERT INTO posts ( createdPost_date, description) VALUES (%s, %s)"
+            val = (datetime.datetime.now(), description)
+
+            mycursor.execute(sql, val)
+            mydb.commit()
+            sql = "INSERT INTO create_post (user_id, post_id) VALUES (%s, %s)"
+
+            val = (session['id'], mycursor.lastrowid)
+            mycursor.execute(sql, val)
+            mydb.commit()
+
+            redirect(url_for('dashboard'))
+
+    return render_template('dashboard.html', form=form, group=groups, profile_picture=profile_picture, allposts = allposts)
 
 
 @app.route('/friends/')
@@ -588,6 +615,59 @@ def friends():
         return redirect(url_for('login'))
 
 
+@app.route('/edit/<post_id>', methods=['POST', 'GET'])
+def edit_post(post_id):
+    npost = NewPost()
+
+    mycursor.execute(
+        'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
+    profile_picture = mycursor.fetchone()
+
+
+    mycursor.execute(
+        'SELECT * FROM posts WHERE post_id = %s', (post_id,))
+    oldpost = mycursor.fetchone()
+
+    if request.method == 'POST' and npost.validate_on_submit():
+        # Get file data and save to your uploads folder
+        if npost.photo.data:  # for both text and photo
+            photo = request.files['photo']
+            description = npost.description.data
+
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            sql = "UPDATE posts SET description = %s, filename = %s WHERE post_id = %s"
+            val = (description, filename, post_id)
+
+            mycursor.execute(sql, val)
+            mydb.commit()
+
+            return redirect(url_for('profile'))
+
+            # print(mycursor.rowcount, "record inserted.")
+            # print("1 record inserted, ID:", mycursor.lastrowid)
+
+
+        else:  # only posts text
+            description = npost.description.data
+
+            sql = "UPDATE posts SET description = %s WHERE post_id = %s"
+            val = (description, post_id)
+
+            print(post_id)
+
+            mycursor.execute(sql, val)
+            mydb.commit()
+
+            return redirect(url_for('profile'))
+            
+
+    return render_template('edit_post.html', profile_picture=profile_picture, npost = npost, oldpost = oldpost)
+
+
+
+
 @app.route('/profile/', methods=['POST', 'GET'])
 def profile():
     """Render website's home page."""
@@ -602,7 +682,6 @@ def profile():
     mycursor.execute(
         'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
     profile_picture = mycursor.fetchone()
-    print(profile_picture)
 
     if request.method == 'POST' and uploadForm.validate_on_submit():
         photo = request.files['profPic']
@@ -667,6 +746,21 @@ def profile():
     return render_template('profile.html', npost=NewPost(), uploadForm=ProPicUpload(), filename='', posts=posts, profile_picture=profile_picture, friend_post=NewPost(), username=session.get('username'))
 
 
+@app.route('/comment<post_id>/', methods=['POST', 'GET'])
+def comments(post_id):
+    friend_post = NewPost()
+    if request.method == 'POST' and friend_post.validate_on_submit():
+        description = friend_post.description.data
+        
+        sql = "INSERT INTO cv_post (user_id, post_id,comment) VALUES (%s, %s, %s)"
+        val = (session['id'], post_id, description)
+
+        mycursor.execute(sql, val)
+        mydb.commit()
+        
+        return redirect(url_for('dashboard'))
+
+
 @app.route('/<username>Profile/', methods=['POST', 'GET'])
 def friend_profile(username):
     """Render website's home page."""
@@ -677,8 +771,6 @@ def friend_profile(username):
     mycursor.execute('SELECT * FROM user WHERE username = %s', (username,))
     friend = mycursor.fetchone()
 
-    print(friend)
-
     mycursor.execute(
         'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
     profile_picture = mycursor.fetchone()
@@ -686,15 +778,16 @@ def friend_profile(username):
     mycursor.execute(
         'SELECT posts.post_id, createdPost_date, description, filename FROM posts join create_post on create_post.post_id=posts.post_id and user_id = %s ORDER BY posts.post_id DESC', (friend[0],))
     posts = mycursor.fetchall()
-    print(posts)
 
     mycursor.execute(
-        'SELECT posts.post_id, comment from posts join cv_post on posts.post_id=cv_post.post_id')
+        'SELECT * from posts join cv_post on posts.post_id=cv_post.post_id join user on user.user_id = cv_post.user_id')
     comments = mycursor.fetchall()
+
     print(comments)
 
     mycursor.execute('SELECT * FROM photo WHERE photo_id = %s', (friend[0],))
     friend_profile_picture = mycursor.fetchone()
+    print(friend_profile_picture)
 
     # if request.method == 'POST' and friend_post.validate_on_submit():
     #     # Only Text
@@ -712,7 +805,7 @@ def friend_profile(username):
     #     mydb.commit()
 
     #     return redirect(url_for('friend_profile', username = username))
-    return render_template('profile.html', npost=NewPost(), filename='', posts=posts, profile_picture=profile_picture, uploadForm=ProPicUpload(), friend_post=NewPost(), username=username, friend_profile_picture=friend_profile_picture, comments=comments)
+    return render_template('profile.html', npost=NewPost(), filename='', posts=posts, friend = friend, profile_picture=profile_picture, uploadForm=ProPicUpload(), friend_post=NewPost(), username=username, friend_profile_picture=friend_profile_picture, comments=comments)
 
 
 def howlong(x):
