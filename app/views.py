@@ -262,15 +262,14 @@ def login():
 
         # Check if user exists using MySQL
         mycursor.execute(
-            "SELECT AES_DECRYPT(UNHEX(password), 'key') FROM user WHERE username = %s ", (username, ))
+            "SELECT AES_DECRYPT(UNHEX(password), 'key'), user_id FROM user WHERE username = %s ", (username, ))
         # Fetch one record and return result
         user = mycursor.fetchone()
-        print(user)
         # If user exists in users table in out database
         if user[0] == password:
             # Create session data, we can access this data in other routes
             session['logged_in'] = True
-            session['id'] = user[0]
+            session['id'] = user[1]
             session['username'] = request.form['username']
             # Redirect to home page
             if session['username'] == 'admin':

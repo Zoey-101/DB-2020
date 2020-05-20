@@ -4,7 +4,7 @@ from faker import Faker
 
 def datagenerate(records, headers):
     fake = Faker()
-    with open("./csv files/user_data_fake.csv", 'wt') as csvFile:
+    with open("./csv files/user_data.csv", 'wt') as csvFile:
         writer = csv.DictWriter(csvFile, fieldnames=headers)
         writer.writeheader()
         for i in range(records):
@@ -26,11 +26,13 @@ def datagenerate(records, headers):
 
 # How to write CSV to Database
 # Run this command in mysql
-# LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS (user_id, f_name, l_name, username, email, password);
+
+# LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\r' IGNORE 1 ROWS(user_id, f_name, l_name, username, @password, email) SET password = HEX(AES_ENCRYPT(@password, 'key'));
 
 
 if __name__ == '__main__':
-    records = 5
-    headers = ["User Id", "First Name", "Last Name", "Username", "Password", "Email"]
+    records = 500000
+    headers = ["User Id", "First Name", "Last Name",
+               "Username", "Password", "Email"]
     datagenerate(records, headers)
     print("User Table CSV generation complete!")

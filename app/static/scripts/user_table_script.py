@@ -4,7 +4,7 @@ from faker import Faker
 
 def datagenerate(records, headers):
     fake = Faker()
-    with open("./csv files/user_data_fake.csv", 'wt') as csvFile:
+    with open("./csv files/user_data.csv", 'wt') as csvFile:
         writer = csv.DictWriter(csvFile, fieldnames=headers)
         writer.writeheader()
         for i in range(records):
