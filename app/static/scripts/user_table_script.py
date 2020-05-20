@@ -31,7 +31,7 @@ def datagenerate(records, headers):
 
 
 if __name__ == '__main__':
-    records = 5
+    records = 500000
     headers = ["User Id", "First Name", "Last Name",
                "Username", "Password", "Email"]
     datagenerate(records, headers)
