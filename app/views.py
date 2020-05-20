@@ -233,7 +233,7 @@ def register():
         if user:
             flash(u'This username is already taken', 'error')
         else:
-            sql = "INSERT INTO user (f_name, l_name, username, email, password) VALUES (%s, %s, %s, %s, AES_ENCRYPT (%s, 'key'))"
+            sql = "INSERT INTO user (f_name, l_name, username, email, password) VALUES (%s, %s, %s, %s, HEX(AES_ENCRYPT (%s, 'key')))"
             val = (f_name, l_name, username,
                    email, password)
 
@@ -262,12 +262,12 @@ def login():
 
         # Check if user exists using MySQL
         mycursor.execute(
-            "SELECT * FROM user WHERE username = %s and password = AES_DECRYPT(%s, 'key')", (username, password))
+            "SELECT AES_DECRYPT(UNHEX(password), 'key') FROM user WHERE username = %s ", (username, ))
         # Fetch one record and return result
         user = mycursor.fetchone()
         print(user)
         # If user exists in users table in out database
-        if user:
+        if user[0] == password:
             # Create session data, we can access this data in other routes
             session['logged_in'] = True
             session['id'] = user[0]

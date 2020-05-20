@@ -27,7 +27,7 @@ def datagenerate(records, headers):
 # How to write CSV to Database
 # Run this command in mysql
 
-LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data_fake.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\r' IGNORE 1 ROWS(user_id, f_name, l_name, username, email, @password) SET password = AES_ENCRYPT(@password, 'key')
+# LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\r' IGNORE 1 ROWS(user_id, f_name, l_name, username, @password, email) SET password = HEX(AES_ENCRYPT(@password, 'key'));
 
 
 if __name__ == '__main__':
