@@ -5,7 +5,7 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 
-from app import app, login_manager
+from app import app
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask import Flask, escape, request
 from app.forms import LoginForm, Registration, AddFriend, newGroup, joinGrp, createPost, NewPost, ProPicUpload, CEForm
@@ -233,7 +233,7 @@ def register():
         if user:
             flash(u'This username is already taken', 'error')
         else:
-            sql = "INSERT INTO user (f_name, l_name, username, email, password) VALUES (%s, %s, %s, %s, %s)"
+            sql = "INSERT INTO user (f_name, l_name, username, email, password) VALUES (%s, %s, %s, %s, AES_ENCRYPT (%s, 'key'))"
             val = (f_name, l_name, username,
                    email, password)
 
@@ -249,13 +249,6 @@ def register():
     return render_template('register.html', form=form)
 
 
-# user_loader callback. This callback is used to reload the user object from
-# the user ID stored in the session
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -269,11 +262,11 @@ def login():
 
         # Check if user exists using MySQL
         mycursor.execute(
-            'SELECT * FROM user WHERE username = %s AND password = %s', (username, password,))
+            "SELECT * FROM user WHERE username = %s and password = AES_DECRYPT(%s, 'key')", (username, password))
         # Fetch one record and return result
         user = mycursor.fetchone()
+        print(user)
         # If user exists in users table in out database
-
         if user:
             # Create session data, we can access this data in other routes
             session['logged_in'] = True

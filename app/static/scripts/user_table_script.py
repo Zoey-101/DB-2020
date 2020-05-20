@@ -26,11 +26,13 @@ def datagenerate(records, headers):
 
 # How to write CSV to Database
 # Run this command in mysql
-# LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS (user_id, f_name, l_name, username, email, password);
+
+LOAD DATA LOCAL INFILE 'C:/Users/Loretta/Desktop/MyBook/app/static/scripts/CSV Files/user_data_fake.csv' INTO TABLE user FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\r' IGNORE 1 ROWS(user_id, f_name, l_name, username, email, @password) SET password = AES_ENCRYPT(@password, 'key')
 
 
 if __name__ == '__main__':
     records = 5
-    headers = ["User Id", "First Name", "Last Name", "Username", "Password", "Email"]
+    headers = ["User Id", "First Name", "Last Name",
+               "Username", "Password", "Email"]
     datagenerate(records, headers)
     print("User Table CSV generation complete!")

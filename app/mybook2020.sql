@@ -22,7 +22,7 @@ create table user (
     f_name varchar(15) not null,
     l_name varchar(15) not null,
     username varchar(15) not null,
-    password varchar(20) not null,
+    password varchar(500) not null,
     email varchar(55) not null,    
     primary key(user_id)
 );
