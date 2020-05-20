@@ -1,44 +1,52 @@
 {% extends "sidebar.html" %} {% block div %}
 
-<div class = "page-header logo">
-    <img
+<div class="page-header logo">
+  <img
     src="../static/icons/library.png"
     class="d-inline-block align-top mr-0"
     alt="Book Icon"
   />
   myBook &copy;
 </div>
-<h5 class = "mt-4 mb-4">Current Users</h5>
+<h5 class="mt-4 mb-4">Current Users</h5>
 
-
-{% if allusers %}
-  {% for user in allusers %}
+{% if allusers %} {% for user in allusers %}
 <div class="mycard mt-1 px-3 py-3">
-    <div class = "row">
-        <div class = "col-7">
-            {{ user[1] }}  {{ user[2] }} 
+  <div class="row">
+    <div class="col-7">
+      {{ user[1] }} {{ user[2] }}
+    </div>
+
+    <div class="col-5">
+      <div class="row">
+        <div class="col-4">
+          <a
+            href="{{ url_for('friendreport', user_id = user[0]) }}"
+            class="btn btn-tertiary wt-lrg sml-fnt"
+          >
+            Friends
+          </a>
         </div>
 
-        <div class = "col-5">
-            <div class = "row">
-                <div class = "col-4">
-                    <a href = "{{ url_for('friendreport', user_id = user[0]) }}" class = "btn btn-tertiary wt-lrg sml-fnt"> Friends </a>
-                </div>
-        
-                <div class = "col-4">
-                    <a href = "{{ url_for('postreport', user_id = user[0]) }}" class = "btn btn-secondary wt-lrg sml-fnt"> Posts </a>
-                </div>
-                
-                <!-- WE NEED THIS???? -->
-                <div class = "col-4">
-                    <a href = "" class = "btn btn-primary wt-lrg sml-fnt"> Comments </a>
-                </div>
-            </div>
+        <div class="col-4">
+          <a
+            href="{{ url_for('postreport', user_id = user[0]) }}"
+            class="btn btn-secondary wt-lrg sml-fnt"
+          >
+            Posts
+          </a>
         </div>
-    </div> 
+        <div class="col-4">
+          <a
+            href="{{ url_for('commentreport', user_id = user[0]) }}"
+            class="btn btn-secondary wt-lrg sml-fnt"
+          >
+            Comments
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-{% endfor %}
-
-{% endif %}
-{% endblock %}
+{% endfor %} {% endif %} {% endblock %}

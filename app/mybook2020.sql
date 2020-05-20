@@ -43,12 +43,6 @@ create table photo (
     foreign key (photo_id) references user(user_id) on update cascade on delete cascade
 );
 
-create table group_photo (
-    photo_id int auto_increment not null,
-    photo_name varchar(50) not null,
-    primary key(photo_id),
-    foreign key (photo_id) references grouped(grp_id) on update cascade on delete cascade
-);
 
 create table posts (
     post_id int auto_increment not null,
@@ -63,6 +57,13 @@ create table grouped (
     grp_name varchar(30) not null,
     purpose varchar(30) not null,
     primary key(grp_id)
+);
+
+create table group_photo (
+    photo_id int not null,
+    photo_name varchar(50) not null,
+    primary key(photo_id),
+    foreign key (photo_id) references grouped(grp_id) on update cascade on delete cascade
 );
 
 create table join_group (
@@ -144,16 +145,16 @@ delimiter ;
 
 
 DELIMITER //
- CREATE PROCEDURE GetNumberFriends(IN user_id INT)
+ CREATE PROCEDURE GetNumberFriends(IN my_id INT)
  BEGIN
- 	SELECT count(distinct friend_id) FROM friend_of WHERE user_id = user_id;
+ 	SELECT count(distinct friend_id) FROM friend_of WHERE user_id = my_id;
  END //
 DELIMITER ;
 
 
 DELIMITER //
- CREATE PROCEDURE GetGroupAmount(IN user_id INT)
+ CREATE PROCEDURE GetGroupAmount(IN my_id INT)
  BEGIN
- SELECT count(user_id) from UCG where user_id = user_id;
+ SELECT count(user_id) from UCG where user_id = my_id;
  END //
 DELIMITER ;

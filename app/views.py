@@ -62,17 +62,14 @@ def grpProfile(grp_id):
     mycursor.execute(
         'SELECT * FROM grouped WHERE grp_id = %s', (grp_id,))
     group = mycursor.fetchone()
-    print(group)
 
     mycursor.execute(
         'SELECT posts.post_id, createdPost_date, description, filename FROM create_grp_post join posts on posts.post_id=create_grp_post.post_id and grp_id = %s ORDER BY posts.post_id DESC', (session['Group_ID'],))
     g_posts = mycursor.fetchall()
-    print(g_posts)
 
     mycursor.execute(
         'SELECT DISTINCT username, user.user_id from user join ucg on ucg.user_id = user.user_id or ucg.ce_id=user.user_id where grp_id = %s and ucg.user_id = %s or ce_id = %s', (session['Group_ID'], session['id'], session['id'],))
     valid_editors = mycursor.fetchall()
-    print(valid_editors)
 
     if valid_editors:
         # Upload Group Profile Picture
@@ -81,20 +78,15 @@ def grpProfile(grp_id):
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             if group_picture is None:
-                print("Th")
                 sql = "INSERT INTO group_photo ( photo_id, photo_name) VALUES (%s, %s)"
                 val = (session['Group_ID'], filename)
                 mycursor.execute(sql, val)
                 mydb.commit()
             else:
-                print("Hkeko")
                 sql = "UPDATE group_photo SET photo_name=%s WHERE photo_id = %s"
                 val = (filename, session['Group_ID'])
                 mycursor.execute(sql, val)
                 mydb.commit()
-
-            print(mycursor.rowcount, "Group Profile Pic Updated.")
-            print("Group Profile Pic uploaded, ID:", mycursor.lastrowid)
 
             return redirect(url_for('grpProfile', grp_id=session['Group_ID']))
 
@@ -115,9 +107,6 @@ def grpProfile(grp_id):
 
                 mycursor.execute(sql, val)
                 mydb.commit()
-
-                print(mycursor.rowcount, "record inserted.")
-                print("1 record inserted, ID:", mycursor.lastrowid)
 
                 sql = "INSERT INTO create_Grp_Post (ce_id, grp_id, post_id) VALUES (%s, %s, %s)"
                 val = (session['id'], session['Group_ID'], mycursor.lastrowid)
@@ -147,7 +136,6 @@ def grpProfile(grp_id):
             mycursor.execute(
                 'SELECT * from user WHERE username = %s', (username,))
             new_editor = mycursor.fetchone()
-            print(new_editor)
 
             if new_editor is not None:
                 sql = "INSERT INTO ucg (user_id, ce_id, grp_id) VALUES (%s, %s, %s)"
@@ -156,7 +144,6 @@ def grpProfile(grp_id):
                 mycursor.execute(sql, val)
                 mydb.commit()
 
-                print("1 record inserted, ID:", mycursor.lastrowid)
                 flash('Successfully registered', 'success')
 
                 mycursor.execute(
@@ -191,9 +178,6 @@ def friendreport(user_id):
         'SELECT * FROM friend_of JOIN user on friend_of.friend_id = user.user_id WHERE friend_of.user_id = %s', (user_id,))
     allfriends = mycursor.fetchall()
 
-    print(user_id)
-    print(allfriends)
-
     if 'username' in session and session['username'] == 'admin':
         return render_template('friend_report.html', allfriends=allfriends)
     else:
@@ -215,6 +199,22 @@ def postreport(user_id):
         return render_template('home.html')
 
 
+@app.route('/administrator/commentreport/<user_id>')
+def commentreport(user_id):
+    """Render the website's admin comment report page."""
+
+    mycursor = mydb.cursor()
+
+    mycursor.execute(
+        'SELECT posts.post_id, comment FROM cv_post join posts on cv_post.post_id=posts.post_id where user_id = %s ORDER BY posts.post_id DESC', (user_id,))
+    allcomments = mycursor.fetchall()
+
+    if 'username' in session and session['username'] == 'admin':
+        return render_template('comment_report.html', allcomments=allcomments)
+    else:
+        return render_template('home.html')
+
+
 @app.route('/register', methods=["GET", "POST"])
 def register():
     """Render website's Registration Form."""
@@ -230,7 +230,6 @@ def register():
 
         mycursor.execute('SELECT * FROM user WHERE username = %s', (username,))
         user = mycursor.fetchone()
-        print(user)
         if user:
             flash(u'This username is already taken', 'error')
         else:
@@ -241,7 +240,6 @@ def register():
             mycursor.execute(sql, val)
             mydb.commit()
 
-            print("1 record inserted, ID:", mycursor.lastrowid)
             flash('Successfully registered', 'success')
 
             return redirect(url_for("login"))
@@ -274,7 +272,6 @@ def login():
             'SELECT * FROM user WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         user = mycursor.fetchone()
-        print(user)
         # If user exists in users table in out database
 
         if user:
@@ -300,7 +297,7 @@ def logout():
     session.pop('logged_in', None)
     session.pop('id', None)
     session.pop('username', None)
-    flash('Logged out Succesfully', 'success')
+    # flash('Logged out Succesfully', 'success')
 
     # Redirect to home page
     return redirect(url_for('home'))
@@ -329,8 +326,6 @@ def addfriend():
                     'SELECT * FROM user WHERE username = %s', (username,))
                 # Fetch one record and return result
                 friend = mycursor.fetchone()
-                print(friend)
-                print('0')
                 if friend:
                     sql = "INSERT INTO friend_of (user_id, friend_id, type) VALUES (%s, %s, %s)"
                     val = (session['id'], friend[0], type)
@@ -345,8 +340,6 @@ def addfriend():
                     mycursor.execute(sql, val)
                     mydb.commit()
 
-                    print(mycursor.rowcount, "record inserted.")
-                    print("1 record inserted, ID:", mycursor.lastrowid)
                     flash('Friend Added', 'success')
                 else:
                     # user does not exist or username/password incorrect
@@ -366,17 +359,12 @@ def createGrp():
         mycursor1 = mydb.cursor()
 
         mycursor.execute(
-            'SELECT DISTINCT grp_name, grouped.grp_id from grouped join ucg join join_group on grouped.grp_id=ucg.grp_id or grouped.grp_id=join_group.grp_id where ucg.user_id = %s', (session['id'],))
+            'SELECT DISTINCT grp_name, grouped.grp_id from join_group join grouped on join_group.grp_id = grouped.grp_id where user_id = %s', (session['id'],))
         groups = mycursor.fetchall()
-        print(groups)
 
-        if groups == []:
-            mycursor.execute(
-                'select grp_name, join_group.grp_id from grouped join join_group on grouped.grp_id=join_group.grp_id where join_group.user_id = %s', (session['id'],))
-            groups = mycursor.fetchall()
-
-        result_args = mycursor.callproc('GetGroupAmount', (session['id'],))
-        print(result_args)
+        mycursor.callproc('GetGroupAmount', (session['id'], ))
+        for result in mycursor.stored_results():
+            result_args = result.fetchall()
 
         mycursor.execute(
             'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
@@ -399,7 +387,6 @@ def createGrp():
                     'SELECT * FROM user WHERE username = %s', (ce,))
                 # Fetch one record and return result
                 content_editor = mycursor1.fetchone()
-                print(content_editor)
                 if content_editor:
                     sql = "INSERT INTO grouped (grp_name, purpose) VALUES (%s, %s)"
                     val = (gname, purpose)
@@ -407,12 +394,21 @@ def createGrp():
                     mycursor.execute(sql, val)
                     mydb.commit()
 
-                    print(mycursor.rowcount, "record inserted.")
-                    print("1 record inserted, ID:", mycursor.lastrowid)
-
                     sql = "INSERT INTO ucg (user_id, ce_id, grp_id) VALUES (%s, %s, %s)"
                     val = (session['id'], content_editor[0],
                            mycursor.lastrowid)
+
+                    mycursor1.execute(sql, val)
+                    mydb.commit()
+
+                    sql = "INSERT INTO join_group (grp_id, user_id) VALUES (%s, %s)"
+                    val = (mycursor.lastrowid, session['id'])
+
+                    mycursor1.execute(sql, val)
+                    mydb.commit()
+
+                    sql = "INSERT INTO join_group (grp_id, user_id) VALUES (%s, %s)"
+                    val = (mycursor.lastrowid, content_editor[0])
 
                     mycursor1.execute(sql, val)
                     mydb.commit()
@@ -424,7 +420,7 @@ def createGrp():
                 # user does not exist or username/password incorrect
                 flash(u'Group Already Exists', 'error')
 
-        return render_template('createGrp.html', form=form, profile_picture=profile_picture, groups=groups, result_args=result_args[0])
+        return render_template('createGrp.html', form=form, profile_picture=profile_picture, groups=groups, result_args=result_args[0][0])
     else:
         return render_template('login.html', form=LoginForm())
 
@@ -450,7 +446,6 @@ def joinGroup():
             # Fetch one record and return result
 
             existing_gp = mycursor.fetchone()
-            print(existing_gp)
 
             if existing_gp:
                 mycursor1.execute(
@@ -464,8 +459,6 @@ def joinGroup():
                     mycursor.execute(sql, val)
                     mydb.commit()
 
-                    print(mycursor.rowcount, "record inserted.")
-                    print("1 record inserted, ID:", mycursor.lastrowid)
                     flash('You have been added', 'success')
                 else:
                     flash('You are already a member of this group')
@@ -499,7 +492,6 @@ def dashboard():
     mycursor.execute(
         'select grp_name, ucg.grp_id from grouped join ucg on grouped.grp_id=ucg.grp_id where ucg.user_id = %s', (session['id'],))
     groups = mycursor.fetchall()
-    print(groups)
 
     if groups == []:
         mycursor.execute(
@@ -512,7 +504,6 @@ def dashboard():
     mycursor.execute(
         'SELECT * FROM posts join create_post on create_post.post_id=posts.post_id join friend_of on friend_of.friend_id = create_post.user_id join user on user.user_id = friend_of.friend_id WHERE friend_of.user_id = %s ORDER BY posts.createdPost_date DESC', (session['id'],))
     allposts = mycursor.fetchall()
-    print('HERE: ', allposts)
 
     if request.method == 'POST' and form.validate_on_submit():
         # Get file data and save to your uploads folder
@@ -530,9 +521,6 @@ def dashboard():
 
             mycursor.execute(sql, val)
             mydb.commit()
-
-            print(mycursor.rowcount, "record inserted.")
-            print("1 record inserted, ID:", mycursor.lastrowid)
 
             sql = "INSERT INTO create_post (user_id, post_id) VALUES (%s, %s)"
             val = (session['id'], mycursor.lastrowid)
@@ -569,17 +557,17 @@ def friends():
 
         # Fetches all friends of the user who is logged in
         users = mycursor.fetchall()
-        print(users)
 
         mycursor.execute(
             'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
         profile_picture = mycursor.fetchone()
 
-        result_args = mycursor.callproc('GetNumberFriends', (session['id'],))
-        print(result_args)
+        mycursor.callproc('GetNumberFriends', [session['id'], ])
+        for result in mycursor.stored_results():
+            result_args = result.fetchall()
 
         # Show the friends page with user info
-        return render_template('friends.html', users=users, profile_picture=profile_picture, result_args=result_args)
+        return render_template('friends.html', users=users, profile_picture=profile_picture, result_args=result_args[0][0])
 
     # User is not loggedin redirect to login page
     else:
@@ -643,6 +631,10 @@ def profile():
         'SELECT * FROM photo WHERE photo_id = %s', (session['id'],))
     profile_picture = mycursor.fetchone()
 
+    mycursor.execute(
+        'SELECT * from posts join cv_post on posts.post_id=cv_post.post_id join user on user.user_id = cv_post.user_id')
+    comments = mycursor.fetchall()
+
     if request.method == 'POST' and uploadForm.validate_on_submit():
         photo = request.files['profPic']
         filename = secure_filename(photo.filename)
@@ -656,9 +648,6 @@ def profile():
             val = (filename, session['id'])
         mycursor.execute(sql, val)
         mydb.commit()
-
-        print(mycursor.rowcount, "New record inserted.")
-        print("Profile Pic uploaded, ID:", mycursor.lastrowid)
 
         return redirect(url_for('profile'))
 
@@ -678,9 +667,6 @@ def profile():
 
             mycursor.execute(sql, val)
             mydb.commit()
-
-            print(mycursor.rowcount, "record inserted.")
-            print("1 record inserted, ID:", mycursor.lastrowid)
 
             sql = "INSERT INTO create_post (user_id, post_id) VALUES (%s, %s)"
             val = (session['id'], mycursor.lastrowid)
